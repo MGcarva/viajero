@@ -1,0 +1,39 @@
+from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
+from app.config import SUPABASE_ANON_KEY, SUPABASE_URL
+from app.routers.proxy import router as proxy_router
+
+app = FastAPI(title="Viajero Web")
+
+app.include_router(proxy_router)
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+templates = Jinja2Templates(directory="app/templates")
+
+
+def contexto_base() -> dict:
+    return {
+        "supabase_url": SUPABASE_URL,
+        "supabase_anon_key": SUPABASE_ANON_KEY,
+    }
+
+
+@app.get("/")
+def mapa(request: Request):
+    return templates.TemplateResponse(request, "mapa.html", contexto_base())
+
+
+@app.get("/login")
+def login(request: Request):
+    return templates.TemplateResponse(request, "login.html", contexto_base())
+
+
+@app.get("/registro")
+def registro(request: Request):
+    return templates.TemplateResponse(request, "registro.html", contexto_base())
+
+
+@app.get("/rutas/nueva")
+def nueva_ruta(request: Request):
+    return templates.TemplateResponse(request, "nueva_ruta.html", contexto_base())

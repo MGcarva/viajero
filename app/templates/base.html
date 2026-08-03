@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Viajero Web{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/estilos.css">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <header class="topbar">
+    <a href="/" class="brand">🏍️ Viajero</a>
+    <nav id="nav-sesion" class="nav-sesion" hidden>
+      <span id="nav-username"></span>
+      <button id="btn-logout" class="btn-link">Cerrar sesión</button>
+    </nav>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    window.__SUPABASE_URL__ = "{{ supabase_url }}";
+    window.__SUPABASE_ANON_KEY__ = "{{ supabase_anon_key }}";
+  </script>
+  <script src="/static/js/supabase-client.js"></script>
+  <script src="/static/js/toast.js"></script>
+  <script src="/static/js/nav.js"></script>
+  <script src="/static/js/geo.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

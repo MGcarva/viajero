@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Mapa - Viajero{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHDRoRIWMHUXwlbNy/PBjqU5idow=" crossorigin="">
+<style>
+  main { padding: 0; }
+  #mapa-contenedor { position: relative; width: 100%; height: calc(100vh - 56px); }
+  #mapa { width: 100%; height: 100%; }
+  .acciones-mapa { position: absolute; top: 1rem; left: 1rem; z-index: 500; display: flex; gap: 0.6rem; }
+  dialog.modal-alerta { border: none; border-radius: 12px; padding: 0; background: #161d24; color: #e8ecef; }
+  dialog.modal-alerta::backdrop { background: rgba(0,0,0,0.5); }
+  .modal-body { padding: 1.5rem; min-width: 280px; display: flex; flex-direction: column; gap: 0.6rem; }
+  .modal-body select, .modal-body textarea, .modal-body input {
+    padding: 0.55rem 0.7rem; border-radius: 8px; border: 1px solid #2c3944;
+    background: #0f1418; color: #e8ecef; font-family: inherit;
+  }
+  .modal-acciones { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 0.5rem; }
+  .modal-acciones button { padding: 0.55rem 1rem; border: none; border-radius: 8px; cursor: pointer; }
+  #btn-confirmar-alerta, #btn-confirmar-lugar, #btn-confirmar-resena { background: #2b6cb0; color: white; }
+  #btn-cancelar-alerta, #btn-cancelar-lugar, #btn-cerrar-resena { background: #26313a; color: #e8ecef; }
+  #resena-promedio { color: #ffd166; font-size: 1.1rem; }
+  #resena-lista { list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.4rem; }
+  #resena-lista li { border-bottom: 1px solid #26313a; padding-bottom: 0.4rem; font-size: 0.9rem; }
+</style>
+{% endblock %}
+{% block content %}
+<div id="mapa-contenedor">
+  <div class="acciones-mapa">
+    <a href="/rutas/nueva" class="btn-accion">+ Nueva ruta</a>
+    <button id="btn-abrir-alerta" class="btn-accion" type="button">⚠️ Reportar alerta</button>
+    <button id="btn-abrir-lugar" class="btn-accion" type="button">📍 Agregar lugar</button>
+  </div>
+  <div id="mapa"></div>
+  <div id="overlay-carga" class="overlay-carga">Cargando mapa...</div>
+</div>
+
+<dialog id="dialog-alerta" class="modal-alerta">
+  <form id="form-alerta" class="modal-body" method="dialog">
+    <label for="tipo-alerta">Tipo de alerta</label>
+    <select id="tipo-alerta" required>
+      <option value="accidente">🚧 Accidente</option>
+      <option value="ayuda">🆘 Pedir ayuda</option>
+      <option value="peligro">⚠️ Peligro</option>
+      <option value="control_policial">👮 Control policial</option>
+      <option value="clima">🌧️ Clima</option>
+    </select>
+
+    <label for="descripcion-alerta">Descripción (opcional)</label>
+    <textarea id="descripcion-alerta" rows="3"></textarea>
+
+    <div class="modal-acciones">
+      <button type="button" id="btn-cancelar-alerta">Cancelar</button>
+      <button type="submit" id="btn-confirmar-alerta">Reportar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dialog-lugar" class="modal-alerta">
+  <form id="form-lugar" class="modal-body" method="dialog">
+    <label for="tipo-lugar">Tipo de lugar</label>
+    <select id="tipo-lugar" required>
+      <option value="gasolinera">⛽ Gasolinera</option>
+      <option value="hotel">🏨 Hotel</option>
+      <option value="mecanico">🔧 Mecánico</option>
+      <option value="hospital">🏥 Hospital</option>
+      <option value="restaurante">🍽️ Restaurante</option>
+      <option value="otro">📍 Otro</option>
+    </select>
+
+    <label for="nombre-lugar">Nombre</label>
+    <input type="text" id="nombre-lugar" required>
+
+    <div class="modal-acciones">
+      <button type="button" id="btn-cancelar-lugar">Cancelar</button>
+      <button type="submit" id="btn-confirmar-lugar">Agregar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dialog-resena" class="modal-alerta">
+  <div class="modal-body">
+    <h3 id="resena-titulo"></h3>
+    <div id="resena-promedio"></div>
+    <ul id="resena-lista"></ul>
+    <form id="form-resena">
+      <label for="calificacion-resena">Tu calificación</label>
+      <select id="calificacion-resena" required>
+        <option value="5">⭐⭐⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+        <option value="2">⭐⭐</option>
+        <option value="1">⭐</option>
+      </select>
+      <label for="comentario-resena">Comentario (opcional)</label>
+      <textarea id="comentario-resena" rows="2"></textarea>
+      <div class="modal-acciones">
+        <button type="button" id="btn-cerrar-resena">Cerrar</button>
+        <button type="submit" id="btn-confirmar-resena">Dejar reseña</button>
+      </div>
+    </form>
+  </div>
+</dialog>
+{% endblock %}
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="/static/js/mapa.js"></script>
+{% endblock %}

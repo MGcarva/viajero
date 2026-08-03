@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Nueva ruta - Viajero{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHDRoRIWMHUXwlbNy/PBjqU5idow=" crossorigin="">
+<style>
+  .ruta-form {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .ruta-form .campo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .ruta-form input {
+    padding: 0.55rem 0.7rem;
+    border-radius: 8px;
+    border: 1px solid #2c3944;
+    background: #0f1418;
+    color: #e8ecef;
+    min-width: 220px;
+  }
+  .ruta-form button, .acciones-ruta button {
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 8px;
+    background: #2b6cb0;
+    color: white;
+    cursor: pointer;
+  }
+  .ruta-form button:disabled, .acciones-ruta button:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  #mapa-ruta { width: 100%; height: 60vh; border-radius: 12px; }
+  .acciones-ruta { margin-top: 0.75rem; display: flex; gap: 0.75rem; align-items: center; }
+  #resumen-ruta { font-size: 0.9rem; color: #9fb0bd; }
+
+  .clima-ruta {
+    margin-top: 1.25rem;
+    padding: 1rem 1.25rem;
+    background: #161d24;
+    border: 1px solid #26313a;
+    border-radius: 12px;
+  }
+  .clima-form { display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap; }
+  .clima-form .campo { display: flex; flex-direction: column; gap: 0.3rem; }
+  .clima-form input[type="date"] {
+    padding: 0.55rem 0.7rem; border-radius: 8px; border: 1px solid #2c3944;
+    background: #0f1418; color: #e8ecef;
+  }
+  .resultado-clima {
+    display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;
+  }
+  .tarjeta-clima {
+    background: #0f1418; border: 1px solid #26313a; border-radius: 10px;
+    padding: 0.9rem 1.1rem; min-width: 160px; text-align: center;
+  }
+  .tarjeta-clima .emoji-clima { font-size: 1.8rem; }
+  .tarjeta-clima .punto-clima { font-size: 0.8rem; color: #9fb0bd; margin-bottom: 0.3rem; }
+  .tarjeta-clima .temp-clima { font-size: 0.95rem; margin-top: 0.3rem; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="hero-ruta"><h1>Nueva ruta</h1></div>
+<form id="form-ruta" class="ruta-form">
+  <div class="campo">
+    <label for="origen">Origen</label>
+    <input type="text" id="origen" required placeholder="Ej: Melipilla, Chile">
+  </div>
+  <div class="campo">
+    <label for="destino">Destino</label>
+    <input type="text" id="destino" required placeholder="Ej: Santiago, Chile">
+  </div>
+  <button type="submit" id="btn-buscar">Buscar ruta</button>
+</form>
+
+<div id="mapa-ruta"></div>
+
+<div class="acciones-ruta">
+  <span id="resumen-ruta"></span>
+  <button type="button" id="btn-guardar" hidden>Guardar ruta</button>
+</div>
+
+<div class="clima-ruta" id="panel-clima" hidden>
+  <div class="clima-form">
+    <div class="campo">
+      <label for="fecha-viaje">Fecha del viaje</label>
+      <input type="date" id="fecha-viaje">
+    </div>
+    <button type="button" id="btn-ver-clima">Ver clima en la ruta</button>
+  </div>
+  <div id="resultado-clima" class="resultado-clima"></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="/static/js/nueva_ruta.js"></script>
+{% endblock %}

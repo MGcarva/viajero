@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Registrarse - Viajero{% endblock %}
+{% block body_class %}pagina-registro{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <h1>Crear cuenta</h1>
+  <form id="form-registro" class="auth-form">
+    <label for="username">Nombre de usuario</label>
+    <input type="text" id="username" required minlength="3" autocomplete="username">
+
+    <label for="email">Email</label>
+    <input type="email" id="email" required autocomplete="email">
+
+    <label for="password">Contraseña</label>
+    <input type="password" id="password" required minlength="6" autocomplete="new-password">
+
+    <button type="submit" id="btn-submit">Crear cuenta</button>
+  </form>
+  <p class="auth-alt">¿Ya tenés cuenta? <a href="/login">Iniciá sesión</a></p>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  redirigirSiAutenticado("/");
+
+  document.getElementById("form-registro").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const btn = document.getElementById("btn-submit");
+    btn.disabled = true;
+    btn.textContent = "Creando cuenta...";
+
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: { data: { username } },
+    });
+
+    if (error) {
+      mostrarToast(error.message, "error");
+      btn.disabled = false;
+      btn.textContent = "Crear cuenta";
+      return;
+    }
+
+    if (data.session) {
+      window.location.href = "/";
+    } else {
+      mostrarToast("Cuenta creada. Revisá tu email para confirmar antes de entrar.", "success");
+      btn.disabled = false;
+      btn.textContent = "Crear cuenta";
+    }
+  });
+</script>
+{% endblock %}
