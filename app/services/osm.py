@@ -78,18 +78,23 @@ def _clasificar_poi(tags: dict) -> str:
     return "otro"
 
 
-def _construir_query_overpass(lat: float, lng: float, radius: int) -> str:
+def _clausula_around(puntos: list[tuple[float, float]], radius: int) -> str:
+    # Overpass acepta más de un par lat,lon en "around": en ese caso busca
+    # cerca de CUALQUIERA de los puntos, ideal para cubrir un camino entero
+    # en una sola consulta en vez de una por punto.
+    coords = ",".join(f"{lat},{lng}" for lat, lng in puntos)
+    return f"around:{radius},{coords}"
+
+
+def _construir_query_overpass(clausula: str) -> str:
     filtros = "".join(
-        f'node["{clave}"="{valor}"](around:{radius},{lat},{lng});\n'
-        for clave, valor in TIPOS_OVERPASS
+        f'node["{clave}"="{valor}"]({clausula});\n' for clave, valor in TIPOS_OVERPASS
     )
     return f"[out:json][timeout:25];\n({filtros});\nout center;"
 
 
-async def get_nearby_pois(
-    lat: float, lng: float, radius: int = 5000, intentos: int = 2
-) -> list[dict]:
-    query = _construir_query_overpass(lat, lng, radius)
+async def _ejecutar_overpass(clausula: str, intentos: int = 2) -> list[dict]:
+    query = _construir_query_overpass(clausula)
     headers = {"User-Agent": USER_AGENT}
 
     for intento in range(intentos):
@@ -122,3 +127,25 @@ async def get_nearby_pois(
             await asyncio.sleep(2)
 
     return []
+
+
+async def get_nearby_pois(
+    lat: float, lng: float, radius: int = 5000, intentos: int = 2
+) -> list[dict]:
+    return await _ejecutar_overpass(_clausula_around([(lat, lng)], radius), intentos)
+
+
+def _submuestrear(puntos: list[tuple[float, float]], maximo: int) -> list[tuple[float, float]]:
+    if len(puntos) <= maximo:
+        return puntos
+    paso = (len(puntos) - 1) / (maximo - 1)
+    return [puntos[round(i * paso)] for i in range(maximo)]
+
+
+async def get_pois_along_route(
+    puntos: list[tuple[float, float]], radius: int = 3000, intentos: int = 2
+) -> list[dict]:
+    if not puntos:
+        return []
+    muestra = _submuestrear(puntos, maximo=12)
+    return await _ejecutar_overpass(_clausula_around(muestra, radius), intentos)

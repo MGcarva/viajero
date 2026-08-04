@@ -45,9 +45,10 @@ async function obtenerJson(url) {
   return resp.json();
 }
 
-async function agregarPois(lat, lng) {
+async function agregarPoisDeRuta(waypoints) {
   try {
-    const pois = await obtenerJson(`/api/pois?lat=${lat}&lng=${lng}&radius=5000`);
+    const puntos = waypoints.map(([lat, lng]) => `${lat},${lng}`).join(";");
+    const pois = await obtenerJson(`/api/pois_ruta?puntos=${encodeURIComponent(puntos)}&radius=3000`);
     pois.forEach((poi) => {
       const marcador = L.marker([poi.latitude, poi.longitude], { icon: iconoPoi(poi.tipo) })
         .addTo(mapaRuta)
@@ -90,9 +91,7 @@ async function buscarRuta(e) {
 
     resumen.textContent = `Distancia: ${ruta.distancia_km} km`;
 
-    // Secuencial (no en paralelo) para no saturar Overpass.
-    await agregarPois(origen.latitude, origen.longitude);
-    await agregarPois(destino.latitude, destino.longitude);
+    await agregarPoisDeRuta(ruta.coordinates);
 
     ultimaRutaCalculada = {
       origenTexto,
@@ -104,6 +103,7 @@ async function buscarRuta(e) {
     };
     btnGuardar.hidden = false;
     mostrarPanelClima();
+    await verClimaRuta();
   } catch (error) {
     mostrarToast(error.message || "No se pudo calcular la ruta.", "error");
   } finally {
@@ -138,6 +138,40 @@ function puntosClimaDeRuta() {
   ];
 }
 
+const VELOCIDAD_PRUDENTE_KMH = 80;
+const INTERVALO_DESCANSO_HORAS = 2;
+const DURACION_PARADA_MIN = 20;
+
+function formatHoras(horas) {
+  const totalMin = Math.round(horas * 60);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  return h > 0 ? `${h}h ${m}min` : `${m}min`;
+}
+
+function calcularTiempoViaje(distanciaKm) {
+  const horasConduccion = distanciaKm / VELOCIDAD_PRUDENTE_KMH;
+  const paradas = Math.floor(horasConduccion / INTERVALO_DESCANSO_HORAS);
+  const horasTotal = horasConduccion + (paradas * DURACION_PARADA_MIN) / 60;
+  return { horasConduccion, paradas, horasTotal };
+}
+
+function tarjetaTiempoViajeHtml(distanciaKm) {
+  const { horasConduccion, paradas, horasTotal } = calcularTiempoViaje(distanciaKm);
+  const textoParadas =
+    paradas > 0
+      ? `${paradas} parada${paradas === 1 ? "" : "s"} de ~${DURACION_PARADA_MIN} min (cada ${INTERVALO_DESCANSO_HORAS} h de manejo)`
+      : "Sin paradas necesarias";
+  return `
+    <div class="tarjeta-clima tarjeta-tiempo">
+      <div class="punto-clima">Tiempo estimado</div>
+      <div class="emoji-clima">🏍️</div>
+      <div>${formatHoras(horasConduccion)} de manejo</div>
+      <div class="temp-clima">${textoParadas}</div>
+      <div class="temp-clima">Total con paradas: ${formatHoras(horasTotal)}</div>
+    </div>`;
+}
+
 function tarjetaClimaCargando(etiqueta) {
   return `<div class="tarjeta-clima"><div class="punto-clima">${etiqueta}</div>Cargando...</div>`;
 }
@@ -168,9 +202,11 @@ async function verClimaRuta() {
   const contenedor = document.getElementById("resultado-clima");
   const puntos = puntosClimaDeRuta();
 
+  const tarjetaTiempo = tarjetaTiempoViajeHtml(ultimaRutaCalculada.distanciaKm);
+
   btn.disabled = true;
   btn.textContent = "Consultando...";
-  contenedor.innerHTML = puntos.map((p) => tarjetaClimaCargando(p.etiqueta)).join("");
+  contenedor.innerHTML = tarjetaTiempo + puntos.map((p) => tarjetaClimaCargando(p.etiqueta)).join("");
 
   const resultados = [];
   // Secuencial, no en paralelo, para no saturar el servicio gratuito.
@@ -183,7 +219,7 @@ async function verClimaRuta() {
     }
   }
 
-  contenedor.innerHTML = resultados.map((r) => tarjetaClimaHtml(r.etiqueta, r.clima)).join("");
+  contenedor.innerHTML = tarjetaTiempo + resultados.map((r) => tarjetaClimaHtml(r.etiqueta, r.clima)).join("");
   btn.disabled = false;
   btn.textContent = "Ver clima en la ruta";
 
@@ -235,6 +271,7 @@ async function iniciarPantallaNuevaRuta() {
   document.getElementById("form-ruta").addEventListener("submit", buscarRuta);
   document.getElementById("btn-guardar").addEventListener("click", guardarRuta);
   document.getElementById("btn-ver-clima").addEventListener("click", verClimaRuta);
+  document.getElementById("fecha-viaje").addEventListener("change", verClimaRuta);
 }
 
 document.addEventListener("DOMContentLoaded", iniciarPantallaNuevaRuta);

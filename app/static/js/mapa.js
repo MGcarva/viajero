@@ -20,7 +20,14 @@ const EMOJI_POI = {
 let mapa;
 let marcadorUsuario;
 let ubicacionActual = UBICACION_FALLBACK;
+let ubicacionEsReal = false;
+let ultimoPuntoPoisCargado = null;
+let cargandoPoisLive = false;
+const poisIdsCargados = new Set();
 const marcadoresAlertas = new Map();
+
+const RADIO_CARGA_POIS_M = 5000;
+const DISTANCIA_RECARGA_POIS_M = 2000;
 
 function inicializarMapa(centro) {
   mapa = L.map("mapa").setView(centro, 13);
@@ -43,10 +50,14 @@ function iniciarSeguimientoUbicacion() {
     (pos) => {
       const punto = [pos.coords.latitude, pos.coords.longitude];
       ubicacionActual = punto;
+      ubicacionEsReal = true;
       marcadorUsuario.setLatLng(punto);
       if (primeraFix) {
         mapa.setView(punto, 14);
         primeraFix = false;
+        cargarPoisSiTeMoviste(punto[0], punto[1]);
+      } else {
+        cargarPoisSiTeMoviste(punto[0], punto[1]);
       }
     },
     () => {
@@ -54,6 +65,20 @@ function iniciarSeguimientoUbicacion() {
     },
     { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
   );
+}
+
+function obtenerUbicacionFresca() {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve({ punto: ubicacionActual, esReal: ubicacionEsReal });
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({ punto: [pos.coords.latitude, pos.coords.longitude], esReal: true }),
+      () => resolve({ punto: ubicacionActual, esReal: ubicacionEsReal }),
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 8000 }
+    );
+  });
 }
 
 async function dibujarRutaGuardada(userId) {
@@ -75,11 +100,13 @@ async function dibujarRutaGuardada(userId) {
   L.marker(waypoints[waypoints.length - 1]).addTo(mapa).bindPopup(`Destino: ${ruta.destino}`);
   mapa.fitBounds(linea.getBounds(), { padding: [40, 40] });
 
-  const origen = waypoints[0];
-  const destino = waypoints[waypoints.length - 1];
-  // Secuencial (no en paralelo) para no saturar Overpass.
-  await cargarPoisCercanos(origen[0], origen[1]);
-  await cargarPoisCercanos(destino[0], destino[1]);
+  try {
+    const puntos = waypoints.map(([lat, lng]) => `${lat},${lng}`).join(";");
+    const resp = await fetch(`/api/pois_ruta?puntos=${encodeURIComponent(puntos)}&radius=3000`);
+    if (resp.ok) renderizarPois(await resp.json());
+  } catch (error) {
+    mostrarToast("No se pudieron cargar los puntos de interés de la ruta guardada.", "info");
+  }
 }
 
 function iconoPoi(tipo) {
@@ -90,29 +117,49 @@ function iconoPoi(tipo) {
   });
 }
 
+function renderizarPois(pois) {
+  pois.forEach((poi) => {
+    if (poisIdsCargados.has(poi.id)) return;
+    poisIdsCargados.add(poi.id);
+    L.marker([poi.latitude, poi.longitude], { icon: iconoPoi(poi.tipo) })
+      .addTo(mapa)
+      .bindPopup(`<b>${poi.nombre}</b><br>${poi.tipo}<br><a href="#" class="ver-resenas">Ver reseñas</a>`)
+      .on("popupopen", (e) => {
+        e.popup
+          .getElement()
+          .querySelector(".ver-resenas")
+          .addEventListener("click", async (ev) => {
+            ev.preventDefault();
+            const poiId = await obtenerOCrearPoi(poi);
+            if (poiId) abrirPanelResena(poiId, poi.nombre);
+          });
+      });
+  });
+}
+
 async function cargarPoisCercanos(lat, lng) {
   try {
-    const resp = await fetch(`/api/pois?lat=${lat}&lng=${lng}&radius=5000`);
+    const resp = await fetch(`/api/pois?lat=${lat}&lng=${lng}&radius=${RADIO_CARGA_POIS_M}`);
     if (!resp.ok) return;
-    const pois = await resp.json();
-    pois.forEach((poi) => {
-      L.marker([poi.latitude, poi.longitude], { icon: iconoPoi(poi.tipo) })
-        .addTo(mapa)
-        .bindPopup(`<b>${poi.nombre}</b><br>${poi.tipo}<br><a href="#" class="ver-resenas">Ver reseñas</a>`)
-        .on("popupopen", (e) => {
-          e.popup
-            .getElement()
-            .querySelector(".ver-resenas")
-            .addEventListener("click", async (ev) => {
-              ev.preventDefault();
-              const poiId = await obtenerOCrearPoi(poi);
-              if (poiId) abrirPanelResena(poiId, poi.nombre);
-            });
-        });
-    });
+    renderizarPois(await resp.json());
   } catch (error) {
     mostrarToast("No se pudieron cargar los puntos de interés cercanos.", "info");
   }
+}
+
+function cargarPoisSiTeMoviste(lat, lng) {
+  if (cargandoPoisLive) return;
+  if (
+    ultimoPuntoPoisCargado &&
+    distanciaMetros(lat, lng, ultimoPuntoPoisCargado[0], ultimoPuntoPoisCargado[1]) < DISTANCIA_RECARGA_POIS_M
+  ) {
+    return;
+  }
+  ultimoPuntoPoisCargado = [lat, lng];
+  cargandoPoisLive = true;
+  cargarPoisCercanos(lat, lng).finally(() => {
+    cargandoPoisLive = false;
+  });
 }
 
 async function obtenerOCrearPoi(poiOsm) {
@@ -259,6 +306,13 @@ function configurarModalLugar() {
     const nombre = document.getElementById("nombre-lugar").value.trim();
     const btn = document.getElementById("btn-confirmar-lugar");
     btn.disabled = true;
+    btn.textContent = "Ubicando...";
+
+    const { punto, esReal } = await obtenerUbicacionFresca();
+    if (!esReal) {
+      mostrarToast("No se pudo confirmar tu ubicación real, se usó la última conocida.", "info");
+    }
+    btn.textContent = "Agregar";
 
     const { data: { user } } = await supabaseClient.auth.getUser();
     const { data: creado, error } = await supabaseClient
@@ -266,7 +320,7 @@ function configurarModalLugar() {
       .insert({
         tipo,
         nombre,
-        ubicacion: `POINT(${ubicacionActual[1]} ${ubicacionActual[0]})`,
+        ubicacion: `POINT(${punto[1]} ${punto[0]})`,
         fuente: "usuario",
         agregado_por: user.id,
       })
@@ -278,7 +332,7 @@ function configurarModalLugar() {
       mostrarToast(error.message, "error");
       return;
     }
-    agregarMarcadorLugar(creado.id, tipo, nombre, ubicacionActual);
+    agregarMarcadorLugar(creado.id, tipo, nombre, punto);
     document.getElementById("nombre-lugar").value = "";
     dialogo.close();
     mostrarToast("Lugar agregado.", "success");
@@ -364,13 +418,20 @@ function configurarModalAlerta() {
     const descripcion = document.getElementById("descripcion-alerta").value.trim();
     const btn = document.getElementById("btn-confirmar-alerta");
     btn.disabled = true;
+    btn.textContent = "Ubicando...";
+
+    const { punto, esReal } = await obtenerUbicacionFresca();
+    if (!esReal) {
+      mostrarToast("No se pudo confirmar tu ubicación real, se usó la última conocida.", "info");
+    }
+    btn.textContent = "Reportar";
 
     const { data: { user } } = await supabaseClient.auth.getUser();
     const { error } = await supabaseClient.from("alerts").insert({
       user_id: user.id,
       tipo,
       descripcion: descripcion || null,
-      ubicacion: `POINT(${ubicacionActual[1]} ${ubicacionActual[0]})`,
+      ubicacion: `POINT(${punto[1]} ${punto[0]})`,
     });
 
     btn.disabled = false;

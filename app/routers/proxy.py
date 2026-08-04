@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 
 from app.services.clima import get_clima
-from app.services.osm import geocode, get_nearby_pois, get_route
+from app.services.osm import geocode, get_nearby_pois, get_pois_along_route, get_route
 
 router = APIRouter(prefix="/api")
 
@@ -32,6 +32,20 @@ async def api_route(
 @router.get("/pois")
 async def api_pois(lat: float, lng: float, radius: int = 5000):
     return await get_nearby_pois(lat, lng, radius)
+
+
+@router.get("/pois_ruta")
+async def api_pois_ruta(puntos: str, radius: int = 3000):
+    try:
+        coordenadas = [
+            (float(par.split(",")[0]), float(par.split(",")[1]))
+            for par in puntos.split(";")
+            if par
+        ]
+    except (ValueError, IndexError):
+        raise HTTPException(status_code=400, detail="Formato de puntos inválido")
+
+    return await get_pois_along_route(coordenadas, radius)
 
 
 @router.get("/clima")
