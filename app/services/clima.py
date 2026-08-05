@@ -1,5 +1,11 @@
+import asyncio
+import logging
+
 import httpx
 
+logger = logging.getLogger(__name__)
+
+USER_AGENT = "ViajeroWeb/1.0 (contacto@viajero.app)"
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
 
 # Códigos WMO (weathercode) de Open-Meteo agrupados a una descripción y un emoji.
@@ -41,7 +47,9 @@ def _describir(codigo: int | None) -> tuple[str, str]:
     return CODIGOS_CLIMA.get(codigo, ("Desconocido", "❓"))
 
 
-async def get_clima(lat: float, lng: float, fecha: str) -> dict | None:
+async def get_clima(
+    lat: float, lng: float, fecha: str, intentos: int = 3
+) -> dict | None:
     params = {
         "latitude": lat,
         "longitude": lng,
@@ -50,29 +58,46 @@ async def get_clima(lat: float, lng: float, fecha: str) -> dict | None:
         "start_date": fecha,
         "end_date": fecha,
     }
+    headers = {"User-Agent": USER_AGENT}
 
-    async with httpx.AsyncClient(timeout=15) as client:
+    for intento in range(intentos):
         try:
-            resp = await client.get(OPEN_METEO_URL, params=params)
-        except httpx.HTTPError:
-            return None
+            async with httpx.AsyncClient(timeout=20) as client:
+                resp = await client.get(OPEN_METEO_URL, params=params, headers=headers)
+        except httpx.HTTPError as error:
+            logger.warning(
+                "Fallo al llamar a Open-Meteo (intento %s/%s): %s",
+                intento + 1,
+                intentos,
+                error,
+            )
+            resp = None
 
-    if resp.status_code != 200:
-        return None
+        if resp is not None:
+            if resp.status_code == 200:
+                datos = resp.json()
+                diario = datos.get("daily")
+                if diario and diario.get("time"):
+                    codigo = diario["weathercode"][0]
+                    descripcion, emoji = _describir(codigo)
+                    return {
+                        "fecha": diario["time"][0],
+                        "temp_max": diario["temperature_2m_max"][0],
+                        "temp_min": diario["temperature_2m_min"][0],
+                        "precipitacion_mm": diario["precipitation_sum"][0],
+                        "descripcion": descripcion,
+                        "emoji": emoji,
+                    }
+                return None
+            logger.warning(
+                "Open-Meteo respondió %s (intento %s/%s): %s",
+                resp.status_code,
+                intento + 1,
+                intentos,
+                resp.text[:200],
+            )
 
-    datos = resp.json()
-    diario = datos.get("daily")
-    if not diario or not diario.get("time"):
-        return None
+        if intento < intentos - 1:
+            await asyncio.sleep(1.5)
 
-    codigo = diario["weathercode"][0]
-    descripcion, emoji = _describir(codigo)
-
-    return {
-        "fecha": diario["time"][0],
-        "temp_max": diario["temperature_2m_max"][0],
-        "temp_min": diario["temperature_2m_min"][0],
-        "precipitacion_mm": diario["precipitation_sum"][0],
-        "descripcion": descripcion,
-        "emoji": emoji,
-    }
+    return None
