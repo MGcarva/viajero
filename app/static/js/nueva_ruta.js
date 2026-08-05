@@ -119,7 +119,7 @@ function mostrarPanelClima() {
 
   const hoy = new Date();
   const maxFecha = new Date(hoy);
-  maxFecha.setDate(maxFecha.getDate() + 15);
+  maxFecha.setDate(maxFecha.getDate() + 4);
   const aIso = (d) => d.toISOString().split("T")[0];
   inputFecha.min = aIso(hoy);
   inputFecha.max = aIso(maxFecha);

@@ -54,6 +54,6 @@ async def api_clima(lat: float, lng: float, fecha: str):
     if resultado is None:
         raise HTTPException(
             status_code=502,
-            detail="No se pudo obtener el pronóstico para esa fecha (el rango disponible es de hoy a 16 días)",
+            detail="No se pudo obtener el pronóstico para esa fecha (el rango disponible es de hoy a 5 días)",
         )
     return resultado
