@@ -445,24 +445,48 @@ function configurarModalAlerta() {
   });
 }
 
+function mostrarErrorCargaMapa(mensaje) {
+  const overlay = document.getElementById("overlay-carga");
+  const texto = document.getElementById("overlay-carga-texto");
+  const btnReintentar = document.getElementById("btn-reintentar-carga");
+  if (!overlay) return;
+  overlay.hidden = false;
+  if (texto) texto.textContent = mensaje;
+  if (btnReintentar) {
+    btnReintentar.hidden = false;
+    btnReintentar.onclick = () => window.location.reload();
+  }
+}
+
 async function iniciarPantallaMapa() {
-  const sesion = await requerirAutenticacion("/login");
-  if (!sesion) return;
-
-  inicializarMapa(UBICACION_FALLBACK);
-  iniciarSeguimientoUbicacion();
-  configurarModalAlerta();
-  configurarModalLugar();
-  configurarModalResena();
-
   const overlay = document.getElementById("overlay-carga");
   try {
+    if (typeof supabaseClient === "undefined" || !supabaseClient) {
+      throw new Error("No se pudo conectar con el servicio (Supabase no cargó).");
+    }
+    if (typeof L === "undefined") {
+      throw new Error("No se pudo cargar el mapa (Leaflet no cargó).");
+    }
+
+    const sesion = await requerirAutenticacion("/login");
+    if (!sesion) return;
+
+    inicializarMapa(UBICACION_FALLBACK);
+    iniciarSeguimientoUbicacion();
+    configurarModalAlerta();
+    configurarModalLugar();
+    configurarModalResena();
+
     await dibujarRutaGuardada(sesion.user.id);
     await cargarPoisUsuario();
     await cargarAlertasActivas();
     suscribirseAlertasRealtime();
-  } finally {
     if (overlay) overlay.hidden = true;
+  } catch (error) {
+    console.error(error);
+    mostrarErrorCargaMapa(
+      "No se pudo cargar la app (posible problema de red). Tocá reintentar."
+    );
   }
 }
 

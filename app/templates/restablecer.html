@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Restablecer contraseña - Viajero{% endblock %}
+{% block body_class %}pagina-login{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <h1>Restablecer contraseña</h1>
+  <form id="form-restablecer" class="auth-form">
+    <label for="password">Nueva contraseña</label>
+    <input type="password" id="password" required minlength="6" autocomplete="new-password">
+
+    <label for="password2">Repetí la contraseña</label>
+    <input type="password" id="password2" required minlength="6" autocomplete="new-password">
+
+    <button type="submit" id="btn-submit">Guardar contraseña</button>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  document.getElementById("form-restablecer").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const password = document.getElementById("password").value;
+    const password2 = document.getElementById("password2").value;
+
+    if (password !== password2) {
+      mostrarToast("Las contraseñas no coinciden.", "error");
+      return;
+    }
+
+    const btn = document.getElementById("btn-submit");
+    btn.disabled = true;
+    btn.textContent = "Guardando...";
+
+    const { error } = await supabaseClient.auth.updateUser({ password });
+
+    btn.disabled = false;
+    btn.textContent = "Guardar contraseña";
+
+    if (error) {
+      mostrarToast(error.message, "error");
+      return;
+    }
+    mostrarToast("Contraseña actualizada. Ya podés iniciar sesión.", "success");
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 1500);
+  });
+</script>
+{% endblock %}

@@ -13,6 +13,7 @@
 
     <button type="submit" id="btn-submit">Entrar</button>
   </form>
+  <p class="auth-alt"><a href="/recuperar">¿Olvidaste tu contraseña?</a></p>
   <p class="auth-alt">¿No tenés cuenta? <a href="/registro">Registrate</a></p>
 </div>
 {% endblock %}
@@ -28,7 +29,24 @@
     btn.disabled = true;
     btn.textContent = "Entrando...";
 
-    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    const resp = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const datos = await resp.json();
+
+    if (!resp.ok) {
+      mostrarToast(datos.detail || "No se pudo iniciar sesión.", "error");
+      btn.disabled = false;
+      btn.textContent = "Entrar";
+      return;
+    }
+
+    const { error } = await supabaseClient.auth.setSession({
+      access_token: datos.access_token,
+      refresh_token: datos.refresh_token,
+    });
 
     if (error) {
       mostrarToast(error.message, "error");

@@ -259,19 +259,32 @@ async function guardarRuta() {
 }
 
 async function iniciarPantallaNuevaRuta() {
-  sesionActual = await requerirAutenticacion("/login");
-  if (!sesionActual) return;
+  try {
+    if (typeof supabaseClient === "undefined" || !supabaseClient) {
+      throw new Error("No se pudo conectar con el servicio (Supabase no cargó).");
+    }
+    if (typeof L === "undefined") {
+      throw new Error("No se pudo cargar el mapa (Leaflet no cargó).");
+    }
 
-  mapaRuta = L.map("mapa-ruta").setView([-33.6832, -71.2235], 6);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19,
-  }).addTo(mapaRuta);
+    sesionActual = await requerirAutenticacion("/login");
+    if (!sesionActual) return;
 
-  document.getElementById("form-ruta").addEventListener("submit", buscarRuta);
-  document.getElementById("btn-guardar").addEventListener("click", guardarRuta);
-  document.getElementById("btn-ver-clima").addEventListener("click", verClimaRuta);
-  document.getElementById("fecha-viaje").addEventListener("change", verClimaRuta);
+    mapaRuta = L.map("mapa-ruta").setView([-33.6832, -71.2235], 6);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 19,
+    }).addTo(mapaRuta);
+
+    document.getElementById("form-ruta").addEventListener("submit", buscarRuta);
+    document.getElementById("btn-guardar").addEventListener("click", guardarRuta);
+    document.getElementById("btn-ver-clima").addEventListener("click", verClimaRuta);
+    document.getElementById("fecha-viaje").addEventListener("change", verClimaRuta);
+  } catch (error) {
+    console.error(error);
+    mostrarToast("No se pudo cargar la página (posible problema de red). Recargá para reintentar.", "error");
+    return;
+  }
 }
 
 document.addEventListener("DOMContentLoaded", iniciarPantallaNuevaRuta);
