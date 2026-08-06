@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from datetime import datetime, timedelta, timezone
 
 import httpx
 
@@ -8,6 +9,17 @@ from app.config import OPENWEATHER_API_KEY
 logger = logging.getLogger(__name__)
 
 FORECAST_URL = "https://api.openweathermap.org/data/2.5/forecast"
+
+
+def _fecha_local(timestamp_utc: int, offset_segundos: int) -> datetime:
+    # OpenWeatherMap devuelve los horarios en UTC; hay que correrlos a la
+    # hora local del lugar antes de comparar contra la fecha que eligió el
+    # usuario (si no, cerca de la medianoche UTC un "hoy" local puede no
+    # matchear ningún bloque y devolver "sin datos" aunque el pronóstico
+    # exista).
+    return datetime.fromtimestamp(timestamp_utc, tz=timezone.utc) + timedelta(
+        seconds=offset_segundos
+    )
 
 
 def _emoji_por_id(id_clima: int) -> str:
@@ -30,12 +42,8 @@ def _emoji_por_id(id_clima: int) -> str:
     return "❓"
 
 
-def _entrada_mas_cercana_a_mediodia(entradas: list[dict]) -> dict:
-    def distancia_mediodia(entrada: dict) -> int:
-        hora = int(entrada["dt_txt"].split(" ")[1].split(":")[0])
-        return abs(hora - 12)
-
-    return min(entradas, key=distancia_mediodia)
+def _entrada_mas_cercana_a_mediodia(entradas: list[tuple[dict, datetime]]) -> dict:
+    return min(entradas, key=lambda par: abs(par[1].hour - 12))[0]
 
 
 async def get_clima(lat: float, lng: float, fecha: str, intentos: int = 2) -> dict | None:
@@ -63,19 +71,25 @@ async def get_clima(lat: float, lng: float, fecha: str, intentos: int = 2) -> di
         if resp is not None:
             if resp.status_code == 200:
                 datos = resp.json()
-                entradas = [
-                    e for e in datos.get("list", []) if e["dt_txt"].startswith(fecha)
+                offset_segundos = datos.get("city", {}).get("timezone", 0)
+                entradas_del_dia = [
+                    (e, hora_local)
+                    for e in datos.get("list", [])
+                    if (hora_local := _fecha_local(e["dt"], offset_segundos)).strftime(
+                        "%Y-%m-%d"
+                    )
+                    == fecha
                 ]
-                if not entradas:
+                if not entradas_del_dia:
                     return None
 
-                temp_max = max(e["main"]["temp_max"] for e in entradas)
-                temp_min = min(e["main"]["temp_min"] for e in entradas)
+                temp_max = max(e["main"]["temp_max"] for e, _ in entradas_del_dia)
+                temp_min = min(e["main"]["temp_min"] for e, _ in entradas_del_dia)
                 precipitacion_mm = sum(
                     e.get("rain", {}).get("3h", 0) + e.get("snow", {}).get("3h", 0)
-                    for e in entradas
+                    for e, _ in entradas_del_dia
                 )
-                representativa = _entrada_mas_cercana_a_mediodia(entradas)
+                representativa = _entrada_mas_cercana_a_mediodia(entradas_del_dia)
                 condicion = representativa["weather"][0]
 
                 return {
