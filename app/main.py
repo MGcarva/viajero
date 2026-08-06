@@ -46,6 +46,11 @@ def restablecer(request: Request):
     return templates.TemplateResponse(request, "restablecer.html", contexto_base())
 
 
+@app.get("/rutas")
+def mis_rutas(request: Request):
+    return templates.TemplateResponse(request, "mis_rutas.html", contexto_base())
+
+
 @app.get("/rutas/nueva")
 def nueva_ruta(request: Request):
     return templates.TemplateResponse(request, "nueva_ruta.html", contexto_base())

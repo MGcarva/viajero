@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Mis rutas - Viajero{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+  .lista-rutas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .tarjeta-ruta {
+    background: #161d24;
+    border: 1px solid #26313a;
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem;
+  }
+  .tarjeta-ruta h3 {
+    margin: 0 0 0.4rem 0;
+    font-size: 1.05rem;
+  }
+  .tarjeta-ruta-info {
+    margin: 0 0 1rem 0;
+    font-size: 0.85rem;
+    color: #9fb0bd;
+  }
+  .tarjeta-ruta-acciones {
+    display: flex;
+    gap: 0.6rem;
+  }
+  .tarjeta-ruta-acciones button {
+    padding: 0.5rem 0.9rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  .btn-ver-ruta { background: #2b6cb0; color: white; }
+  .btn-eliminar-ruta { background: #26313a; color: #e8ecef; }
+  #sin-rutas { color: #9fb0bd; margin-top: 1rem; }
+
+  dialog.modal-alerta { border: none; border-radius: 12px; padding: 0; background: #161d24; color: #e8ecef; width: min(90vw, 520px); }
+  dialog.modal-alerta::backdrop { background: rgba(0,0,0,0.5); }
+  .modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
+  .modal-acciones { display: flex; justify-content: flex-end; margin-top: 0.5rem; }
+  .modal-acciones button {
+    padding: 0.55rem 1rem; border: none; border-radius: 8px; cursor: pointer;
+    background: #26313a; color: #e8ecef;
+  }
+  #mapa-preview { width: 100%; height: 320px; border-radius: 10px; }
+</style>
+{% endblock %}
+{% block content %}
+<p><a href="/">← Volver al mapa</a></p>
+<h1>Mis rutas</h1>
+<p id="sin-rutas" hidden>Todavía no guardaste ninguna ruta. <a href="/rutas/nueva">Creá una acá</a>.</p>
+<div id="lista-rutas" class="lista-rutas"></div>
+
+<dialog id="dialog-ruta" class="modal-alerta">
+  <div class="modal-body">
+    <h3 id="dialog-ruta-titulo"></h3>
+    <div id="mapa-preview"></div>
+    <div class="modal-acciones">
+      <button type="button" id="btn-cerrar-ruta">Cerrar</button>
+    </div>
+  </div>
+</dialog>
+{% endblock %}
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="/static/js/mis_rutas.js"></script>
+{% endblock %}
