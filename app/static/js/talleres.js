@@ -127,47 +127,35 @@ function configurarModalResenaTaller() {
 
 function configurarModalTaller() {
   const dialogo = document.getElementById("dialog-taller");
-  document.getElementById("btn-abrir-taller").addEventListener("click", async () => {
-    const sesion = await requerirCuentaParaAccion("Creá una cuenta gratis para agregar un taller.");
-    if (!sesion) return;
-    sesionActual = sesion;
-    dialogo.showModal();
-  });
+  document.getElementById("btn-abrir-taller").addEventListener("click", () => dialogo.showModal());
   document.getElementById("btn-cancelar-taller").addEventListener("click", () => dialogo.close());
 
   document.getElementById("form-taller").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const nombre = document.getElementById("nombre-taller").value.trim();
+    const nombre_taller = document.getElementById("nombre-taller").value.trim();
     const direccion = document.getElementById("direccion-taller").value.trim();
+    const contacto = document.getElementById("contacto-taller").value.trim();
     const btn = document.getElementById("btn-confirmar-taller");
     btn.disabled = true;
-    btn.textContent = "Ubicando...";
+    btn.textContent = "Enviando...";
 
-    try {
-      const resp = await fetch(`/api/geocode?q=${encodeURIComponent(direccion)}`);
-      if (!resp.ok) throw new Error("No se pudo encontrar esa dirección.");
-      const lugar = await resp.json();
+    const { error } = await supabaseClient.from("solicitudes_talleres").insert({
+      nombre_taller,
+      direccion,
+      contacto,
+    });
 
-      const { error } = await supabaseClient.from("pois").insert({
-        tipo: "mecanico",
-        nombre,
-        ubicacion: `POINT(${lugar.longitude} ${lugar.latitude})`,
-        fuente: "usuario",
-        agregado_por: sesionActual.user.id,
-      });
+    btn.disabled = false;
+    btn.textContent = "Enviar";
 
-      if (error) throw new Error(error.message);
-
-      document.getElementById("form-taller").reset();
-      dialogo.close();
-      mostrarToast("Taller agregado.", "success");
-      await cargarTalleres();
-    } catch (error) {
+    if (error) {
       mostrarToast(error.message, "error");
-    } finally {
-      btn.disabled = false;
-      btn.textContent = "Agregar";
+      return;
     }
+
+    document.getElementById("form-taller").reset();
+    dialogo.close();
+    mostrarToast("¡Gracias! Vamos a sumar tu taller pronto.", "success");
   });
 }
 

@@ -47,22 +47,27 @@
 <p><a href="/">← Volver al inicio</a></p>
 <div class="cabecera-talleres">
   <h1>🔧 Talleres</h1>
-  <button id="btn-abrir-taller" class="btn-accion" type="button">+ Agregar taller</button>
+  <button id="btn-abrir-taller" class="btn-accion" type="button">+ Sumar mi taller</button>
 </div>
-<p id="sin-talleres" hidden>Todavía no hay talleres cargados. ¡Agregá el primero!</p>
+<p id="sin-talleres" hidden>Todavía no hay talleres cargados. ¡Sumá el primero!</p>
 <div id="grilla-talleres" class="grilla-talleres"></div>
 
 <dialog id="dialog-taller" class="modal-alerta">
   <form id="form-taller" class="modal-body" method="dialog">
+    <p style="margin: 0; color: #9fb0bd; font-size: 0.85rem;">Dejanos los datos de tu taller y lo sumamos al directorio.</p>
+
     <label for="nombre-taller">Nombre del taller</label>
     <input type="text" id="nombre-taller" required>
 
     <label for="direccion-taller">Dirección o comuna</label>
     <input type="text" id="direccion-taller" placeholder="Ej: Av. Providencia 123, Santiago" required>
 
+    <label for="contacto-taller">Contacto (WhatsApp, teléfono o email)</label>
+    <input type="text" id="contacto-taller" required>
+
     <div class="modal-acciones">
       <button type="button" id="btn-cancelar-taller">Cancelar</button>
-      <button type="submit" id="btn-confirmar-taller">Agregar</button>
+      <button type="submit" id="btn-confirmar-taller">Enviar</button>
     </div>
   </form>
 </dialog>
