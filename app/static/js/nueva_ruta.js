@@ -229,7 +229,12 @@ async function verClimaRuta() {
 }
 
 async function iniciarRuta() {
-  if (!ultimaRutaCalculada || !sesionActual) return;
+  if (!ultimaRutaCalculada) return;
+
+  const sesion = await requerirCuentaParaAccion("Creá una cuenta gratis para iniciar una ruta.");
+  if (!sesion) return;
+  sesionActual = sesion;
+
   const btnIniciar = document.getElementById("btn-guardar");
   btnIniciar.disabled = true;
   btnIniciar.textContent = "Iniciando...";
@@ -267,8 +272,7 @@ async function iniciarPantallaNuevaRuta() {
       throw new Error("No se pudo cargar el mapa (Leaflet no cargó).");
     }
 
-    sesionActual = await requerirAutenticacion("/login");
-    if (!sesionActual) return;
+    sesionActual = await obtenerSesion();
 
     mapaRuta = L.map("mapa-ruta").setView([-33.6832, -71.2235], 6);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {

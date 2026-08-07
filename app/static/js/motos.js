@@ -137,7 +137,12 @@ async function marcarVendida(id) {
 
 function configurarModalMoto() {
   const dialogo = document.getElementById("dialog-moto");
-  document.getElementById("btn-abrir-moto").addEventListener("click", () => dialogo.showModal());
+  document.getElementById("btn-abrir-moto").addEventListener("click", async () => {
+    const sesion = await requerirCuentaParaAccion("Creá una cuenta gratis para publicar tu moto.");
+    if (!sesion) return;
+    sesionActual = sesion;
+    dialogo.showModal();
+  });
   document.getElementById("btn-cancelar-moto").addEventListener("click", () => dialogo.close());
 
   document.getElementById("form-moto").addEventListener("submit", async (e) => {
@@ -206,9 +211,7 @@ function configurarModalMoto() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    sesionActual = await requerirAutenticacion("/login");
-    if (!sesionActual) return;
-
+    sesionActual = await obtenerSesion();
     configurarModalMoto();
     await cargarMotos();
   } catch (error) {

@@ -144,9 +144,6 @@ async function cargarRutasComunidad() {
 
 async function iniciarPantallaInicio() {
   try {
-    const sesion = await requerirAutenticacion("/login");
-    if (!sesion) return;
-
     iniciarCarrusel();
     await cargarClimaCiudades();
     await cargarPreviewFotos();

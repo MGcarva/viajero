@@ -117,6 +117,10 @@ async function subirFoto(e) {
     return;
   }
 
+  const sesion = await requerirCuentaParaAccion("Creá una cuenta gratis para subir fotos.");
+  if (!sesion) return;
+  sesionActual = sesion;
+
   const btn = document.getElementById("btn-subir-foto");
   btn.disabled = true;
   btn.textContent = "Subiendo...";
@@ -157,9 +161,12 @@ async function subirFoto(e) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  sesionActual = await requerirAutenticacion("/login");
-  if (!sesionActual) return;
-
-  await cargarFotos();
-  document.getElementById("form-foto").addEventListener("submit", subirFoto);
+  try {
+    sesionActual = await obtenerSesion();
+    await cargarFotos();
+    document.getElementById("form-foto").addEventListener("submit", subirFoto);
+  } catch (error) {
+    console.error(error);
+    mostrarToast("Hubo un problema cargando la galería. Recargá la página.", "error");
+  }
 });

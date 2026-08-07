@@ -1,7 +1,4 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  const sesion = await requerirAutenticacion("/login");
-  if (!sesion) return;
-
+document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("form-anuncio").addEventListener("submit", async (e) => {
     e.preventDefault();
     const empresa = document.getElementById("empresa-anuncio").value.trim();

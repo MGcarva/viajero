@@ -96,6 +96,10 @@ function configurarModalResenaTaller() {
   document.getElementById("btn-cerrar-resena-taller").addEventListener("click", () => dialogo.close());
   document.getElementById("form-resena-taller").addEventListener("submit", async (e) => {
     e.preventDefault();
+    const sesion = await requerirCuentaParaAccion("Creá una cuenta gratis para dejar una reseña.");
+    if (!sesion) return;
+    sesionActual = sesion;
+
     const poiId = dialogo.dataset.poiId;
     const calificacion = parseInt(document.getElementById("calificacion-resena-taller").value, 10);
     const comentario = document.getElementById("comentario-resena-taller").value.trim();
@@ -123,7 +127,12 @@ function configurarModalResenaTaller() {
 
 function configurarModalTaller() {
   const dialogo = document.getElementById("dialog-taller");
-  document.getElementById("btn-abrir-taller").addEventListener("click", () => dialogo.showModal());
+  document.getElementById("btn-abrir-taller").addEventListener("click", async () => {
+    const sesion = await requerirCuentaParaAccion("Creá una cuenta gratis para agregar un taller.");
+    if (!sesion) return;
+    sesionActual = sesion;
+    dialogo.showModal();
+  });
   document.getElementById("btn-cancelar-taller").addEventListener("click", () => dialogo.close());
 
   document.getElementById("form-taller").addEventListener("submit", async (e) => {
@@ -164,9 +173,7 @@ function configurarModalTaller() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    sesionActual = await requerirAutenticacion("/login");
-    if (!sesionActual) return;
-
+    sesionActual = await obtenerSesion();
     configurarModalTaller();
     configurarModalResenaTaller();
     await cargarTalleres();

@@ -76,6 +76,10 @@ function configurarFormRespuesta() {
     const contenido = textarea.value.trim();
     if (!contenido) return;
 
+    const sesion = await requerirCuentaParaAccion("Creá una cuenta gratis para responder.");
+    if (!sesion) return;
+    sesionActual = sesion;
+
     const btn = document.getElementById("btn-enviar-respuesta");
     btn.disabled = true;
 
@@ -98,9 +102,7 @@ function configurarFormRespuesta() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    sesionActual = await requerirAutenticacion("/login");
-    if (!sesionActual) return;
-
+    sesionActual = await obtenerSesion();
     configurarFormRespuesta();
     await cargarPregunta();
     await cargarRespuestas();

@@ -54,7 +54,12 @@ async function cargarPreguntas() {
 
 function configurarModalPregunta() {
   const dialogo = document.getElementById("dialog-pregunta");
-  document.getElementById("btn-abrir-pregunta").addEventListener("click", () => dialogo.showModal());
+  document.getElementById("btn-abrir-pregunta").addEventListener("click", async () => {
+    const sesion = await requerirCuentaParaAccion("Creá una cuenta gratis para publicar una pregunta.");
+    if (!sesion) return;
+    sesionActual = sesion;
+    dialogo.showModal();
+  });
   document.getElementById("btn-cancelar-pregunta").addEventListener("click", () => dialogo.close());
 
   document.getElementById("form-pregunta").addEventListener("submit", async (e) => {
@@ -84,9 +89,7 @@ function configurarModalPregunta() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    sesionActual = await requerirAutenticacion("/login");
-    if (!sesionActual) return;
-
+    sesionActual = await obtenerSesion();
     configurarModalPregunta();
     await cargarPreguntas();
   } catch (error) {

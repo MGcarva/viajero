@@ -271,6 +271,9 @@ function configurarModalResena() {
   document.getElementById("btn-cerrar-resena").addEventListener("click", () => dialogo.close());
   document.getElementById("form-resena").addEventListener("submit", async (e) => {
     e.preventDefault();
+    const sesion = await requerirCuentaParaAccion("Creá una cuenta gratis para dejar una reseña.");
+    if (!sesion) return;
+
     const poiId = dialogo.dataset.poiId;
     const calificacion = parseInt(document.getElementById("calificacion-resena").value, 10);
     const comentario = document.getElementById("comentario-resena").value.trim();
@@ -298,7 +301,11 @@ function configurarModalResena() {
 
 function configurarModalLugar() {
   const dialogo = document.getElementById("dialog-lugar");
-  document.getElementById("btn-abrir-lugar").addEventListener("click", () => dialogo.showModal());
+  document.getElementById("btn-abrir-lugar").addEventListener("click", async () => {
+    const sesion = await requerirCuentaParaAccion("Creá una cuenta gratis para agregar lugares.");
+    if (!sesion) return;
+    dialogo.showModal();
+  });
   document.getElementById("btn-cancelar-lugar").addEventListener("click", () => dialogo.close());
   document.getElementById("form-lugar").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -406,7 +413,9 @@ function suscribirseAlertasRealtime() {
 
 function configurarModalAlerta() {
   const dialogo = document.getElementById("dialog-alerta");
-  document.getElementById("btn-abrir-alerta").addEventListener("click", () => {
+  document.getElementById("btn-abrir-alerta").addEventListener("click", async () => {
+    const sesion = await requerirCuentaParaAccion("Creá una cuenta gratis para reportar alertas.");
+    if (!sesion) return;
     dialogo.showModal();
   });
   document.getElementById("btn-cancelar-alerta").addEventListener("click", () => {
@@ -468,8 +477,7 @@ async function iniciarPantallaMapa() {
       throw new Error("No se pudo cargar el mapa (Leaflet no cargó).");
     }
 
-    const sesion = await requerirAutenticacion("/login");
-    if (!sesion) return;
+    const sesion = await obtenerSesion();
 
     inicializarMapa(UBICACION_FALLBACK);
     iniciarSeguimientoUbicacion();
@@ -478,7 +486,9 @@ async function iniciarPantallaMapa() {
     configurarModalResena();
     configurarModalChat();
 
-    await dibujarRutaGuardada(sesion.user.id);
+    if (sesion) {
+      await dibujarRutaGuardada(sesion.user.id);
+    }
     await cargarPoisUsuario();
     await cargarAlertasActivas();
     suscribirseAlertasRealtime();
@@ -586,6 +596,9 @@ function configurarModalChat() {
     const input = document.getElementById("chat-input");
     const contenido = input.value.trim();
     if (!contenido) return;
+
+    const sesion = await requerirCuentaParaAccion("Creá una cuenta gratis para chatear.");
+    if (!sesion) return;
 
     const { data: { user } } = await supabaseClient.auth.getUser();
     const { error } = await supabaseClient.from("chat_mensajes").insert({

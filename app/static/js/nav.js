@@ -18,13 +18,28 @@ async function requerirAutenticacion(destino = "/login") {
   return sesion;
 }
 
+// Para acciones puntuales (publicar, reseñar, escribir) en páginas que por
+// lo demás se pueden navegar sin cuenta: si no hay sesión, avisa y manda a
+// registrarse en vez de bloquear toda la página.
+async function requerirCuentaParaAccion(mensaje = "Creá una cuenta gratis para hacer esto.") {
+  const sesion = await obtenerSesion();
+  if (!sesion) {
+    mostrarToast(mensaje, "info");
+    window.location.href = "/registro";
+    return null;
+  }
+  return sesion;
+}
+
 async function pintarNav() {
   const sesion = await obtenerSesion();
-  const nav = document.getElementById("nav-sesion");
+  const navSesion = document.getElementById("nav-sesion");
+  const navInvitado = document.getElementById("nav-invitado");
   const nombre = document.getElementById("nav-username");
-  if (!nav) return;
+
   if (sesion) {
-    nav.hidden = false;
+    if (navSesion) navSesion.hidden = false;
+    if (navInvitado) navInvitado.hidden = true;
     if (nombre) {
       const { data: perfil } = await supabaseClient
         .from("profiles")
@@ -34,7 +49,8 @@ async function pintarNav() {
       nombre.textContent = perfil ? perfil.username : sesion.user.email;
     }
   } else {
-    nav.hidden = true;
+    if (navSesion) navSesion.hidden = true;
+    if (navInvitado) navInvitado.hidden = false;
   }
 }
 
