@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Talleres - Viajero{% endblock %}
+{% block head %}
+<style>
+  .cabecera-talleres {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .grilla-talleres {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .tarjeta-taller {
+    background: #161d24;
+    border: 1px solid #26313a;
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem;
+  }
+  .tarjeta-taller h3 { margin: 0 0 0.3rem 0; font-size: 1.05rem; }
+  .tarjeta-taller .taller-promedio { color: #ffd166; font-size: 0.95rem; margin-bottom: 0.6rem; }
+  .tarjeta-taller .taller-fuente { font-size: 0.75rem; color: #6b7885; margin-bottom: 0.6rem; }
+  .tarjeta-taller button { padding: 0.5rem 0.9rem; border: none; border-radius: 8px; background: #2b6cb0; color: white; cursor: pointer; font-size: 0.85rem; }
+  #sin-talleres { color: #9fb0bd; margin-top: 1rem; }
+
+  dialog.modal-alerta { border: none; border-radius: 12px; padding: 0; background: #161d24; color: #e8ecef; width: min(90vw, 420px); }
+  dialog.modal-alerta::backdrop { background: rgba(0,0,0,0.5); }
+  .modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
+  .modal-body input, .modal-body select, .modal-body textarea {
+    padding: 0.55rem 0.7rem; border-radius: 8px; border: 1px solid #2c3944;
+    background: #0f1418; color: #e8ecef; font-family: inherit;
+  }
+  .modal-acciones { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 0.5rem; }
+  .modal-acciones button { padding: 0.55rem 1rem; border: none; border-radius: 8px; cursor: pointer; }
+  #btn-confirmar-taller, #btn-confirmar-resena-taller { background: #2b6cb0; color: white; }
+  #btn-cancelar-taller, #btn-cerrar-resena-taller { background: #26313a; color: #e8ecef; }
+  #resena-taller-promedio { color: #ffd166; font-size: 1.1rem; }
+  #resena-taller-lista { list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.4rem; }
+  #resena-taller-lista li { border-bottom: 1px solid #26313a; padding-bottom: 0.4rem; font-size: 0.9rem; }
+</style>
+{% endblock %}
+{% block content %}
+<p><a href="/">← Volver al inicio</a></p>
+<div class="cabecera-talleres">
+  <h1>🔧 Talleres</h1>
+  <button id="btn-abrir-taller" class="btn-accion" type="button">+ Agregar taller</button>
+</div>
+<p id="sin-talleres" hidden>Todavía no hay talleres cargados. ¡Agregá el primero!</p>
+<div id="grilla-talleres" class="grilla-talleres"></div>
+
+<dialog id="dialog-taller" class="modal-alerta">
+  <form id="form-taller" class="modal-body" method="dialog">
+    <label for="nombre-taller">Nombre del taller</label>
+    <input type="text" id="nombre-taller" required>
+
+    <label for="direccion-taller">Dirección o comuna</label>
+    <input type="text" id="direccion-taller" placeholder="Ej: Av. Providencia 123, Santiago" required>
+
+    <div class="modal-acciones">
+      <button type="button" id="btn-cancelar-taller">Cancelar</button>
+      <button type="submit" id="btn-confirmar-taller">Agregar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dialog-resena-taller" class="modal-alerta">
+  <div class="modal-body">
+    <h3 id="resena-taller-titulo"></h3>
+    <div id="resena-taller-promedio"></div>
+    <ul id="resena-taller-lista"></ul>
+    <form id="form-resena-taller">
+      <label for="calificacion-resena-taller">Tu calificación</label>
+      <select id="calificacion-resena-taller" required>
+        <option value="5">⭐⭐⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+        <option value="2">⭐⭐</option>
+        <option value="1">⭐</option>
+      </select>
+      <label for="comentario-resena-taller">Comentario (opcional)</label>
+      <textarea id="comentario-resena-taller" rows="2"></textarea>
+      <div class="modal-acciones">
+        <button type="button" id="btn-cerrar-resena-taller">Cerrar</button>
+        <button type="submit" id="btn-confirmar-resena-taller">Dejar reseña</button>
+      </div>
+    </form>
+  </div>
+</dialog>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/talleres.js?v={{ v }}"></script>
+{% endblock %}

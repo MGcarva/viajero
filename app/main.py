@@ -72,3 +72,8 @@ def nueva_ruta(request: Request):
 @app.get("/fotos")
 def fotos(request: Request):
     return templates.TemplateResponse(request, "galeria.html", contexto_base())
+
+
+@app.get("/talleres")
+def talleres(request: Request):
+    return templates.TemplateResponse(request, "talleres.html", contexto_base())
