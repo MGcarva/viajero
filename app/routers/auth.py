@@ -3,7 +3,13 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 from app.config import SUPABASE_ANON_KEY, SUPABASE_URL
-from app.services.rate_limit import ip_bloqueada, registrar_exito, registrar_fallo
+from app.services.rate_limit import (
+    ip_bloqueada,
+    limite_excedido,
+    obtener_ip_cliente,
+    registrar_exito,
+    registrar_fallo,
+)
 
 router = APIRouter(prefix="/api/auth")
 
@@ -11,13 +17,6 @@ router = APIRouter(prefix="/api/auth")
 class LoginBody(BaseModel):
     email: str
     password: str
-
-
-def obtener_ip_cliente(request: Request) -> str:
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "desconocida"
 
 
 @router.post("/login")
@@ -30,6 +29,13 @@ async def login(body: LoginBody, request: Request):
         raise HTTPException(
             status_code=429,
             detail=f"Demasiados intentos fallidos. Probá de nuevo en {minutos} minuto{'s' if minutos != 1 else ''}.",
+        )
+
+    restante_flood = limite_excedido(f"login:{ip}", max_peticiones=20, ventana_segundos=60)
+    if restante_flood is not None:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Demasiadas peticiones. Probá de nuevo en {restante_flood} segundos.",
         )
 
     url = f"{SUPABASE_URL}/auth/v1/token?grant_type=password"
