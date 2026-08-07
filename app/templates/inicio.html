@@ -172,6 +172,39 @@
 
   .mensaje-vacio { color: #9fb0bd; font-size: 0.9rem; }
 
+  .fila-videos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  .tarjeta-video {
+    display: block;
+    background: #161d24;
+    border: 1px solid #26313a;
+    border-radius: 12px;
+    overflow: hidden;
+    text-decoration: none;
+    color: #e8ecef;
+    transition: transform 0.15s ease;
+  }
+  .tarjeta-video:hover { transform: translateY(-3px); }
+  .tarjeta-video img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    display: block;
+  }
+  .tarjeta-video-titulo {
+    padding: 0.7rem 0.85rem;
+    font-size: 0.85rem;
+    line-height: 1.3;
+  }
+  .tarjeta-video-canal {
+    padding: 0 0.85rem 0.7rem 0.85rem;
+    font-size: 0.75rem;
+    color: #9fb0bd;
+  }
+
   .footer-app {
     margin-top: 3rem;
     border-top: 1px solid #26313a;
@@ -247,6 +280,32 @@
     <div class="item-esencial"><span class="item-emoji">🔋</span>Cargador / powerbank</div>
     <div class="item-esencial"><span class="item-emoji">💧</span>Agua y snacks</div>
     <div class="item-esencial"><span class="item-emoji">💵</span>Efectivo</div>
+  </div>
+</section>
+
+<section class="seccion">
+  <h2>🎥 Videos recomendados</h2>
+  <div class="fila-videos">
+    <a href="https://www.youtube.com/watch?v=MJ-E8phTuO0" target="_blank" rel="noopener" class="tarjeta-video">
+      <img src="https://img.youtube.com/vi/MJ-E8phTuO0/hqdefault.jpg" alt="Cómo crear tracks para tus rutas en moto" loading="lazy">
+      <div class="tarjeta-video-titulo">Cómo CREAR TRACKS para tus RUTAS EN MOTO 🏍️ Mi método paso a paso</div>
+      <div class="tarjeta-video-canal">Soy Tribu</div>
+    </a>
+    <a href="https://www.youtube.com/watch?v=B27O0zvUTTE" target="_blank" rel="noopener" class="tarjeta-video">
+      <img src="https://img.youtube.com/vi/B27O0zvUTTE/hqdefault.jpg" alt="R1300 GS vs F900 GS, comparativa" loading="lazy">
+      <div class="tarjeta-video-titulo">R1300 GS vs F900 GS 🤔 ¿Cuál es mejor? Análisis y comparativa</div>
+      <div class="tarjeta-video-canal">Soy Tribu</div>
+    </a>
+    <a href="https://www.youtube.com/watch?v=wJ54hBYK-qQ" target="_blank" rel="noopener" class="tarjeta-video">
+      <img src="https://img.youtube.com/vi/wJ54hBYK-qQ/hqdefault.jpg" alt="Documentos necesarios para viajar en moto por el mundo" loading="lazy">
+      <div class="tarjeta-video-titulo">10 documentos necesarios para viajar en moto por el mundo 🛂</div>
+      <div class="tarjeta-video-canal">Soy Tribu</div>
+    </a>
+    <a href="https://www.youtube.com/watch?v=WpwEDHGKpJ4" target="_blank" rel="noopener" class="tarjeta-video">
+      <img src="https://img.youtube.com/vi/WpwEDHGKpJ4/hqdefault.jpg" alt="De Chile a Alaska en moto por 7 años" loading="lazy">
+      <div class="tarjeta-video-titulo">¡Se acabó! Terminé mi viaje de la manera más inesperada — de Chile a Alaska en moto x 7 años 🏍️</div>
+      <div class="tarjeta-video-canal">Soy Tribu</div>
+    </a>
   </div>
 </section>
 
