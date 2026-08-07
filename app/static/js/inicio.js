@@ -9,9 +9,11 @@ const CIUDADES_FRECUENTES = [
 function iniciarCarrusel() {
   const track = document.getElementById("carrusel-track");
   const dotsContenedor = document.getElementById("carrusel-dots");
-  if (!track) return;
+  if (!track || !dotsContenedor) return;
 
   const total = track.children.length;
+  if (total <= 1) return;
+
   let indice = 0;
   let temporizador = null;
 
