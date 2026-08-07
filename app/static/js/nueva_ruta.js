@@ -228,11 +228,11 @@ async function verClimaRuta() {
   }
 }
 
-async function guardarRuta() {
+async function iniciarRuta() {
   if (!ultimaRutaCalculada || !sesionActual) return;
-  const btnGuardar = document.getElementById("btn-guardar");
-  btnGuardar.disabled = true;
-  btnGuardar.textContent = "Guardando...";
+  const btnIniciar = document.getElementById("btn-guardar");
+  btnIniciar.disabled = true;
+  btnIniciar.textContent = "Iniciando...";
 
   const { origenTexto, destinoTexto, origen, destino, waypoints, distanciaKm } = ultimaRutaCalculada;
 
@@ -249,12 +249,12 @@ async function guardarRuta() {
 
   if (error) {
     mostrarToast(error.message, "error");
-    btnGuardar.disabled = false;
-    btnGuardar.textContent = "Guardar ruta";
+    btnIniciar.disabled = false;
+    btnIniciar.textContent = "🏁 Iniciar ruta";
     return;
   }
 
-  mostrarToast("Ruta guardada.", "success");
+  mostrarToast("¡Ruta iniciada! Ya la tenés disponible en Mis rutas.", "success");
   window.location.href = "/";
 }
 
@@ -277,7 +277,7 @@ async function iniciarPantallaNuevaRuta() {
     }).addTo(mapaRuta);
 
     document.getElementById("form-ruta").addEventListener("submit", buscarRuta);
-    document.getElementById("btn-guardar").addEventListener("click", guardarRuta);
+    document.getElementById("btn-guardar").addEventListener("click", iniciarRuta);
     document.getElementById("btn-ver-clima").addEventListener("click", verClimaRuta);
     document.getElementById("fecha-viaje").addEventListener("change", verClimaRuta);
   } catch (error) {
