@@ -154,22 +154,6 @@
   .tarjeta-ruta-comunidad h3 { margin: 0 0 0.3rem 0; font-size: 1rem; }
   .tarjeta-ruta-comunidad p { margin: 0; font-size: 0.8rem; color: #9fb0bd; }
 
-  .grid-esenciales {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 0.9rem;
-    margin-bottom: 1rem;
-  }
-  .item-esencial {
-    background: #161d24;
-    border: 1px solid #26313a;
-    border-radius: 10px;
-    padding: 0.9rem;
-    text-align: center;
-    font-size: 0.85rem;
-  }
-  .item-esencial .item-emoji { font-size: 1.6rem; display: block; margin-bottom: 0.4rem; }
-
   .mensaje-vacio { color: #9fb0bd; font-size: 0.9rem; }
 
   .fila-videos {
@@ -227,14 +211,19 @@
     color: #9fb0bd;
     font-size: 0.85rem;
   }
-  .footer-app nav {
+
+  .subnav-inicio {
     display: flex;
     gap: 1.25rem;
     justify-content: center;
     flex-wrap: wrap;
-    margin-bottom: 0.75rem;
+    padding: 0.85rem 1.25rem;
+    background: #10161c;
+    border-bottom: 1px solid #26313a;
+    font-size: 0.9rem;
   }
-  .footer-app nav a { color: #4db8ff; text-decoration: none; }
+  .subnav-inicio a { color: #9fb0bd; text-decoration: none; }
+  .subnav-inicio a:hover { color: #4db8ff; }
 
   @media (max-width: 640px) {
     .hero-carrusel { height: 50vh; }
@@ -243,6 +232,16 @@
 </style>
 {% endblock %}
 {% block content %}
+<nav class="subnav-inicio">
+  <a href="/mapa">Mapa</a>
+  <a href="/rutas/nueva">Nueva ruta</a>
+  <a href="/rutas">Mis rutas</a>
+  <a href="/fotos">Fotos</a>
+  <a href="/talleres">Talleres</a>
+  <a href="/foro">Foro</a>
+  <a href="/motos">Venta de motos</a>
+  <a href="/anunciate">Anúnciate</a>
+</nav>
 <section class="hero-carrusel" id="carrusel">
   <div class="carrusel-track" id="carrusel-track">
     <img src="/static/imagenes/images4.jpg?v={{ v }}" alt="Motociclistas viajando">
@@ -264,6 +263,16 @@
 </section>
 
 <section class="seccion">
+  <div class="banner-anuncio">
+    <div>
+      <strong>📢 Espacio disponible para marcas</strong>
+      <p>Repuestos, indumentaria, talleres, seguros, alojamiento... llegá a la comunidad motera.</p>
+    </div>
+    <a href="/anunciate" class="btn-accion">Anúnciate aquí</a>
+  </div>
+</section>
+
+<section class="seccion">
   <h2>☀️ Clima en destinos frecuentes</h2>
   <div id="clima-ciudades" class="fila-tarjetas"></div>
 </section>
@@ -277,24 +286,6 @@
 <section class="seccion">
   <h2>📍 Por visitar — rutas de la comunidad</h2>
   <div id="rutas-comunidad" class="fila-tarjetas"></div>
-</section>
-
-<section class="seccion">
-  <h2>🎒 Elementos indispensables para tu viaje</h2>
-  <div class="grid-esenciales">
-    <div class="item-esencial"><span class="item-emoji">🪖</span>Casco homologado</div>
-    <div class="item-esencial"><span class="item-emoji">🧥</span>Chaqueta con protecciones</div>
-    <div class="item-esencial"><span class="item-emoji">🧤</span>Guantes</div>
-    <div class="item-esencial"><span class="item-emoji">🥾</span>Botas altas</div>
-    <div class="item-esencial"><span class="item-emoji">🧰</span>Kit de herramientas básico</div>
-    <div class="item-esencial"><span class="item-emoji">🩹</span>Botiquín de primeros auxilios</div>
-    <div class="item-esencial"><span class="item-emoji">📄</span>Documentos (licencia, padrón, seguro)</div>
-    <div class="item-esencial"><span class="item-emoji">🧵</span>Kit antipinchazos / repuesto</div>
-    <div class="item-esencial"><span class="item-emoji">🌧️</span>Impermeable</div>
-    <div class="item-esencial"><span class="item-emoji">🔋</span>Cargador / powerbank</div>
-    <div class="item-esencial"><span class="item-emoji">💧</span>Agua y snacks</div>
-    <div class="item-esencial"><span class="item-emoji">💵</span>Efectivo</div>
-  </div>
 </section>
 
 <section class="seccion">
@@ -323,27 +314,7 @@
   </div>
 </section>
 
-<section class="seccion">
-  <div class="banner-anuncio">
-    <div>
-      <strong>📢 Espacio disponible para marcas</strong>
-      <p>Repuestos, indumentaria, talleres, seguros, alojamiento... llegá a la comunidad motera.</p>
-    </div>
-    <a href="/anunciate" class="btn-accion">Anúnciate aquí</a>
-  </div>
-</section>
-
 <footer class="footer-app">
-  <nav>
-    <a href="/mapa">Mapa</a>
-    <a href="/rutas/nueva">Nueva ruta</a>
-    <a href="/rutas">Mis rutas</a>
-    <a href="/fotos">Fotos</a>
-    <a href="/talleres">Talleres</a>
-    <a href="/foro">Foro</a>
-    <a href="/motos">Venta de motos</a>
-    <a href="/anunciate">Anúnciate</a>
-  </nav>
   <div>🏍️ Viajero — hecho por y para motociclistas viajeros.</div>
 </footer>
 {% endblock %}
