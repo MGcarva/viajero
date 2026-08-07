@@ -135,8 +135,8 @@ async function cargarRutasComunidad() {
     const card = document.createElement("div");
     card.className = "tarjeta-ruta-comunidad";
     card.innerHTML = `
-      <h3>${ruta.nombre}</h3>
-      <p>${ruta.distancia_km ? ruta.distancia_km + " km · " : ""}por ${autor}</p>
+      <h3>${escaparHtml(ruta.nombre)}</h3>
+      <p>${ruta.distancia_km ? ruta.distancia_km + " km · " : ""}por ${escaparHtml(autor)}</p>
     `;
     contenedor.appendChild(card);
   });

@@ -91,8 +91,8 @@ function verRuta(ruta) {
     if (Array.isArray(waypoints) && waypoints.length > 0) {
       capaPreview = L.layerGroup().addTo(mapaPreview);
       const linea = L.polyline(waypoints, { color: "#4db8ff", weight: 4 }).addTo(capaPreview);
-      L.marker(waypoints[0]).addTo(capaPreview).bindPopup(`Origen: ${ruta.origen}`);
-      L.marker(waypoints[waypoints.length - 1]).addTo(capaPreview).bindPopup(`Destino: ${ruta.destino}`);
+      L.marker(waypoints[0]).addTo(capaPreview).bindPopup(`Origen: ${escaparHtml(ruta.origen)}`);
+      L.marker(waypoints[waypoints.length - 1]).addTo(capaPreview).bindPopup(`Destino: ${escaparHtml(ruta.destino)}`);
       mapaPreview.fitBounds(linea.getBounds(), { padding: [20, 20] });
     } else {
       mapaPreview.setView([-33.6832, -71.2235], 5);

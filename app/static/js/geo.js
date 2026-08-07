@@ -17,6 +17,17 @@ function parseWkbPoint(hex) {
   return { lat, lng };
 }
 
+// Para cuando hace falta insertar texto de un usuario (nombre, título,
+// descripción, etc.) dentro de innerHTML o de un bindPopup de Leaflet,
+// que interpretan el string como HTML. Sin esto, alguien podría guardar
+// "<img src=x onerror=...>" como nombre de un lugar y afectar a todos
+// los que lo vean.
+function escaparHtml(texto) {
+  const div = document.createElement("div");
+  div.textContent = texto == null ? "" : String(texto);
+  return div.innerHTML;
+}
+
 function distanciaMetros(lat1, lng1, lat2, lng2) {
   const R = 6371000;
   const rad = Math.PI / 180;

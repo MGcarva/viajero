@@ -77,3 +77,15 @@ def fotos(request: Request):
 @app.get("/talleres")
 def talleres(request: Request):
     return templates.TemplateResponse(request, "talleres.html", contexto_base())
+
+
+@app.get("/foro")
+def foro(request: Request):
+    return templates.TemplateResponse(request, "foro.html", contexto_base())
+
+
+@app.get("/foro/{pregunta_id}")
+def foro_pregunta(pregunta_id: str, request: Request):
+    ctx = contexto_base()
+    ctx["pregunta_id"] = pregunta_id
+    return templates.TemplateResponse(request, "foro_pregunta.html", ctx)

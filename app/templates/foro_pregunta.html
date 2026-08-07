@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Pregunta - Foro Viajero{% endblock %}
+{% block head %}
+<style>
+  .pregunta-detalle {
+    background: #161d24;
+    border: 1px solid #26313a;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-top: 1rem;
+  }
+  .pregunta-detalle h1 { margin: 0 0 0.4rem 0; font-size: 1.3rem; }
+  .pregunta-detalle .pregunta-meta { font-size: 0.8rem; color: #9fb0bd; margin-bottom: 0.9rem; }
+  .pregunta-detalle .pregunta-contenido { white-space: pre-wrap; line-height: 1.5; }
+
+  .lista-respuestas {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+  }
+  .tarjeta-respuesta {
+    background: #161d24;
+    border: 1px solid #26313a;
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+  }
+  .tarjeta-respuesta .respuesta-autor { color: #4db8ff; font-weight: 600; font-size: 0.85rem; }
+  .tarjeta-respuesta .respuesta-fecha { color: #6b7885; font-size: 0.75rem; margin-left: 0.4rem; }
+  .tarjeta-respuesta .respuesta-contenido { margin-top: 0.4rem; white-space: pre-wrap; line-height: 1.4; font-size: 0.9rem; }
+
+  .form-respuesta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .form-respuesta textarea {
+    padding: 0.6rem 0.7rem;
+    border-radius: 8px;
+    border: 1px solid #2c3944;
+    background: #0f1418;
+    color: #e8ecef;
+    font-family: inherit;
+  }
+  .form-respuesta button {
+    align-self: flex-end;
+    padding: 0.55rem 1.1rem;
+    border: none;
+    border-radius: 8px;
+    background: #2b6cb0;
+    color: white;
+    cursor: pointer;
+  }
+  #sin-respuestas { color: #9fb0bd; font-size: 0.9rem; }
+</style>
+{% endblock %}
+{% block content %}
+<p><a href="/foro">← Volver al foro</a></p>
+<div id="pregunta-detalle" class="pregunta-detalle">Cargando...</div>
+
+<h2>Respuestas</h2>
+<p id="sin-respuestas" hidden>Todavía no hay respuestas. ¡Sé el primero en ayudar!</p>
+<div id="lista-respuestas" class="lista-respuestas"></div>
+
+<form id="form-respuesta" class="form-respuesta">
+  <textarea id="contenido-respuesta" rows="3" placeholder="Escribí tu respuesta..." required></textarea>
+  <button type="submit" id="btn-enviar-respuesta">Responder</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+  window.__PREGUNTA_ID__ = "{{ pregunta_id }}";
+</script>
+<script src="/static/js/foro_pregunta.js?v={{ v }}"></script>
+{% endblock %}

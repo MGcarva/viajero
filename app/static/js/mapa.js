@@ -96,8 +96,8 @@ async function dibujarRutaGuardada(userId) {
   if (!Array.isArray(waypoints) || waypoints.length === 0) return;
 
   const linea = L.polyline(waypoints, { color: "#4db8ff", weight: 4 }).addTo(mapa);
-  L.marker(waypoints[0]).addTo(mapa).bindPopup(`Origen: ${ruta.origen}`);
-  L.marker(waypoints[waypoints.length - 1]).addTo(mapa).bindPopup(`Destino: ${ruta.destino}`);
+  L.marker(waypoints[0]).addTo(mapa).bindPopup(`Origen: ${escaparHtml(ruta.origen)}`);
+  L.marker(waypoints[waypoints.length - 1]).addTo(mapa).bindPopup(`Destino: ${escaparHtml(ruta.destino)}`);
   mapa.fitBounds(linea.getBounds(), { padding: [40, 40] });
 
   try {
@@ -123,7 +123,7 @@ function renderizarPois(pois) {
     poisIdsCargados.add(poi.id);
     L.marker([poi.latitude, poi.longitude], { icon: iconoPoi(poi.tipo) })
       .addTo(mapa)
-      .bindPopup(`<b>${poi.nombre}</b><br>${poi.tipo}<br><a href="#" class="ver-resenas">Ver reseñas</a>`)
+      .bindPopup(`<b>${escaparHtml(poi.nombre)}</b><br>${poi.tipo}<br><a href="#" class="ver-resenas">Ver reseñas</a>`)
       .on("popupopen", (e) => {
         e.popup
           .getElement()
@@ -215,7 +215,7 @@ async function cargarPoisUsuario() {
 function agregarMarcadorLugar(poiId, tipo, nombre, latlng) {
   L.marker(latlng, { icon: iconoPoi(tipo) })
     .addTo(mapa)
-    .bindPopup(`<b>${nombre}</b><br>${tipo}<br><a href="#" class="ver-resenas">Ver reseñas</a>`)
+    .bindPopup(`<b>${escaparHtml(nombre)}</b><br>${tipo}<br><a href="#" class="ver-resenas">Ver reseñas</a>`)
     .on("popupopen", (e) => {
       e.popup
         .getElement()
@@ -364,7 +364,7 @@ function pintarAlerta(alerta) {
     .addTo(mapa)
     .bindPopup(
       `<b>${EMOJI_ALERTA[alerta.tipo] || ""} ${alerta.tipo.replace("_", " ")}</b>` +
-        (alerta.descripcion ? `<br>${alerta.descripcion}` : "")
+        (alerta.descripcion ? `<br>${escaparHtml(alerta.descripcion)}` : "")
     );
   marcadoresAlertas.set(alerta.id, marcador);
 }

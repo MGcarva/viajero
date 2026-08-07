@@ -52,7 +52,7 @@ async function agregarPoisDeRuta(waypoints) {
     pois.forEach((poi) => {
       const marcador = L.marker([poi.latitude, poi.longitude], { icon: iconoPoi(poi.tipo) })
         .addTo(mapaRuta)
-        .bindPopup(`<b>${poi.nombre}</b><br>${poi.tipo}`);
+        .bindPopup(`<b>${escaparHtml(poi.nombre)}</b><br>${poi.tipo}`);
       capaPois.push(marcador);
     });
   } catch (error) {
@@ -85,8 +85,8 @@ async function buscarRuta(e) {
     );
 
     capaRuta = L.polyline(ruta.coordinates, { color: "#4db8ff", weight: 4 }).addTo(mapaRuta);
-    L.marker([origen.latitude, origen.longitude]).addTo(mapaRuta).bindPopup(`Origen: ${origenTexto}`);
-    L.marker([destino.latitude, destino.longitude]).addTo(mapaRuta).bindPopup(`Destino: ${destinoTexto}`);
+    L.marker([origen.latitude, origen.longitude]).addTo(mapaRuta).bindPopup(`Origen: ${escaparHtml(origenTexto)}`);
+    L.marker([destino.latitude, destino.longitude]).addTo(mapaRuta).bindPopup(`Destino: ${escaparHtml(destinoTexto)}`);
     mapaRuta.fitBounds(capaRuta.getBounds(), { padding: [30, 30] });
 
     resumen.textContent = `Distancia: ${ruta.distancia_km} km`;
@@ -173,18 +173,18 @@ function tarjetaTiempoViajeHtml(distanciaKm) {
 }
 
 function tarjetaClimaCargando(etiqueta) {
-  return `<div class="tarjeta-clima"><div class="punto-clima">${etiqueta}</div>Cargando...</div>`;
+  return `<div class="tarjeta-clima"><div class="punto-clima">${escaparHtml(etiqueta)}</div>Cargando...</div>`;
 }
 
 function tarjetaClimaHtml(etiqueta, clima) {
   if (!clima) {
-    return `<div class="tarjeta-clima"><div class="punto-clima">${etiqueta}</div>Sin datos disponibles</div>`;
+    return `<div class="tarjeta-clima"><div class="punto-clima">${escaparHtml(etiqueta)}</div>Sin datos disponibles</div>`;
   }
   return `
     <div class="tarjeta-clima">
-      <div class="punto-clima">${etiqueta}</div>
+      <div class="punto-clima">${escaparHtml(etiqueta)}</div>
       <div class="emoji-clima">${clima.emoji}</div>
-      <div>${clima.descripcion}</div>
+      <div>${escaparHtml(clima.descripcion)}</div>
       <div class="temp-clima">${clima.temp_min}° / ${clima.temp_max}°C</div>
       <div class="temp-clima">💧 ${clima.precipitacion_mm} mm</div>
     </div>`;

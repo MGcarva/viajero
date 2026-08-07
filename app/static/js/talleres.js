@@ -48,7 +48,7 @@ async function cargarTalleres() {
     const card = document.createElement("div");
     card.className = "tarjeta-taller";
     card.innerHTML = `
-      <h3>${poi.nombre}</h3>
+      <h3>${escaparHtml(poi.nombre)}</h3>
       <div class="taller-promedio">${promedio ? `⭐ ${promedio} (${resenasPoi.length})` : "Sin reseñas todavía"}</div>
       <div class="taller-fuente">${poi.fuente === "usuario" ? "Agregado por la comunidad" : "OpenStreetMap"}</div>
       <button type="button">Ver / dejar reseña</button>
