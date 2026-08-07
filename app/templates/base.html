@@ -10,13 +10,16 @@
 <body class="{% block body_class %}{% endblock %}">
   <header class="topbar">
     <a href="/" class="brand">🏍️ Viajero</a>
-    <nav id="nav-sesion" class="nav-sesion" hidden>
-      <button id="btn-logout" class="btn-link">Cerrar sesión</button>
-    </nav>
-    <nav id="nav-invitado" class="nav-sesion" hidden>
-      <a href="/login">Iniciar sesión</a>
-      <a href="/registro" class="btn-accion">Registrarse</a>
-    </nav>
+    <div class="topbar-derecha">
+      <a href="/" class="btn-link">🏠 Inicio</a>
+      <nav id="nav-sesion" class="nav-sesion" hidden>
+        <button id="btn-logout" class="btn-link">Cerrar sesión</button>
+      </nav>
+      <nav id="nav-invitado" class="nav-sesion" hidden>
+        <a href="/login">Iniciar sesión</a>
+        <a href="/registro" class="btn-accion">Registrarse</a>
+      </nav>
+    </div>
   </header>
 
   <main>

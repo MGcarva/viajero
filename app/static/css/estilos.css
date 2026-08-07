@@ -29,6 +29,12 @@ a {
   color: #e8ecef;
 }
 
+.topbar-derecha {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
 .nav-sesion {
   display: flex;
   align-items: center;
@@ -43,6 +49,7 @@ a {
   cursor: pointer;
   font-size: 0.9rem;
   padding: 0;
+  text-decoration: none;
 }
 
 main {
