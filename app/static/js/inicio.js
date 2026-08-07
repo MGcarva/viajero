@@ -118,38 +118,11 @@ async function cargarPreviewFotos() {
   });
 }
 
-async function cargarRutasComunidad() {
-  const contenedor = document.getElementById("rutas-comunidad");
-  const { data: rutas, error } = await supabaseClient
-    .from("routes")
-    .select("nombre, distancia_km, created_at, profiles(username)")
-    .order("created_at", { ascending: false })
-    .limit(6);
-
-  if (error || !rutas || rutas.length === 0) {
-    contenedor.innerHTML = '<p class="mensaje-vacio">Todavía no hay rutas compartidas por la comunidad.</p>';
-    return;
-  }
-
-  contenedor.innerHTML = "";
-  rutas.forEach((ruta) => {
-    const autor = ruta.profiles ? ruta.profiles.username : "Usuario";
-    const card = document.createElement("div");
-    card.className = "tarjeta-ruta-comunidad";
-    card.innerHTML = `
-      <h3>${escaparHtml(ruta.nombre)}</h3>
-      <p>${ruta.distancia_km ? ruta.distancia_km + " km · " : ""}por ${escaparHtml(autor)}</p>
-    `;
-    contenedor.appendChild(card);
-  });
-}
-
 async function iniciarPantallaInicio() {
   try {
     iniciarCarrusel();
     await cargarClimaCiudades();
     await cargarPreviewFotos();
-    await cargarRutasComunidad();
   } catch (error) {
     console.error(error);
     mostrarToast("Hubo un problema cargando el inicio. Recargá la página.", "error");
