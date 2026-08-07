@@ -22,6 +22,30 @@
   #resena-lista { list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.4rem; }
   #resena-lista li { border-bottom: 1px solid #26313a; padding-bottom: 0.4rem; font-size: 0.9rem; }
   .overlay-carga-contenido { display: flex; flex-direction: column; align-items: center; gap: 1rem; text-align: center; padding: 1rem; }
+
+  .btn-chat-flotante {
+    position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 800;
+    width: 56px; height: 56px; border-radius: 50%; border: none;
+    background: #2b6cb0; color: white; font-size: 1.5rem; cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  .modal-chat { width: min(90vw, 420px); }
+  .chat-mensajes {
+    height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem;
+    background: #0f1418; border-radius: 8px; padding: 0.75rem;
+  }
+  .chat-mensaje { font-size: 0.9rem; overflow-wrap: anywhere; }
+  .chat-mensaje .chat-autor { color: #4db8ff; font-weight: 600; }
+  .chat-mensaje .chat-hora { color: #6b7885; font-size: 0.75rem; margin-left: 0.4rem; }
+  .chat-form { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+  .chat-form input {
+    flex: 1; padding: 0.55rem 0.7rem; border-radius: 8px; border: 1px solid #2c3944;
+    background: #0f1418; color: #e8ecef;
+  }
+  .chat-form button {
+    padding: 0.55rem 1rem; border: none; border-radius: 8px;
+    background: #2b6cb0; color: white; cursor: pointer;
+  }
 </style>
 {% endblock %}
 {% block content %}
@@ -40,6 +64,8 @@
     </div>
   </div>
 </div>
+
+<button id="btn-abrir-chat" class="btn-chat-flotante" type="button" title="Chat de la comunidad">💬</button>
 
 <dialog id="dialog-alerta" class="modal-alerta">
   <form id="form-alerta" class="modal-body" method="dialog">
@@ -105,6 +131,20 @@
         <button type="submit" id="btn-confirmar-resena">Dejar reseña</button>
       </div>
     </form>
+  </div>
+</dialog>
+
+<dialog id="dialog-chat" class="modal-alerta modal-chat">
+  <div class="modal-body">
+    <h3>Chat de la comunidad</h3>
+    <div id="chat-mensajes" class="chat-mensajes"></div>
+    <form id="form-chat" class="chat-form">
+      <input type="text" id="chat-input" maxlength="500" placeholder="Escribí un mensaje..." required autocomplete="off">
+      <button type="submit">Enviar</button>
+    </form>
+    <div class="modal-acciones">
+      <button type="button" id="btn-cerrar-chat">Cerrar</button>
+    </div>
   </div>
 </dialog>
 {% endblock %}

@@ -476,11 +476,13 @@ async function iniciarPantallaMapa() {
     configurarModalAlerta();
     configurarModalLugar();
     configurarModalResena();
+    configurarModalChat();
 
     await dibujarRutaGuardada(sesion.user.id);
     await cargarPoisUsuario();
     await cargarAlertasActivas();
     suscribirseAlertasRealtime();
+    suscribirseChatRealtime();
     if (overlay) overlay.hidden = true;
   } catch (error) {
     console.error(error);
@@ -488,6 +490,115 @@ async function iniciarPantallaMapa() {
       "No se pudo cargar la app (posible problema de red). Tocá reintentar."
     );
   }
+}
+
+const cacheUsernamesChat = new Map();
+
+async function obtenerUsernameChat(userId) {
+  if (cacheUsernamesChat.has(userId)) return cacheUsernamesChat.get(userId);
+  const { data } = await supabaseClient
+    .from("profiles")
+    .select("username")
+    .eq("id", userId)
+    .maybeSingle();
+  const nombre = data ? data.username : "Usuario";
+  cacheUsernamesChat.set(userId, nombre);
+  return nombre;
+}
+
+function formatearHoraChat(iso) {
+  return new Date(iso).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" });
+}
+
+function pintarMensajeChat(mensaje, autor) {
+  const contenedor = document.getElementById("chat-mensajes");
+  if (!contenedor) return;
+  const div = document.createElement("div");
+  div.className = "chat-mensaje";
+  const autorSpan = document.createElement("span");
+  autorSpan.className = "chat-autor";
+  autorSpan.textContent = autor;
+  const horaSpan = document.createElement("span");
+  horaSpan.className = "chat-hora";
+  horaSpan.textContent = formatearHoraChat(mensaje.created_at);
+  const texto = document.createElement("div");
+  texto.textContent = mensaje.contenido;
+  div.appendChild(autorSpan);
+  div.appendChild(horaSpan);
+  div.appendChild(texto);
+  contenedor.appendChild(div);
+  contenedor.scrollTop = contenedor.scrollHeight;
+}
+
+async function cargarMensajesChat() {
+  const { data: mensajes, error } = await supabaseClient
+    .from("chat_mensajes")
+    .select("*, profiles(username)")
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (error || !mensajes) {
+    mostrarToast("No se pudo cargar el chat.", "error");
+    return;
+  }
+
+  const contenedor = document.getElementById("chat-mensajes");
+  contenedor.innerHTML = "";
+  mensajes.reverse().forEach((m) => {
+    const autor = m.profiles ? m.profiles.username : "Usuario";
+    cacheUsernamesChat.set(m.user_id, autor);
+    pintarMensajeChat(m, autor);
+  });
+}
+
+function suscribirseChatRealtime() {
+  supabaseClient
+    .channel("chat-realtime")
+    .on(
+      "postgres_changes",
+      { event: "INSERT", schema: "public", table: "chat_mensajes" },
+      async (payload) => {
+        const autor = await obtenerUsernameChat(payload.new.user_id);
+        pintarMensajeChat(payload.new, autor);
+      }
+    )
+    .subscribe();
+}
+
+function configurarModalChat() {
+  const dialogo = document.getElementById("dialog-chat");
+  let cargado = false;
+
+  document.getElementById("btn-abrir-chat").addEventListener("click", async () => {
+    dialogo.showModal();
+    if (!cargado) {
+      cargado = true;
+      await cargarMensajesChat();
+    }
+    const contenedor = document.getElementById("chat-mensajes");
+    contenedor.scrollTop = contenedor.scrollHeight;
+  });
+
+  document.getElementById("btn-cerrar-chat").addEventListener("click", () => dialogo.close());
+
+  document.getElementById("form-chat").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const input = document.getElementById("chat-input");
+    const contenido = input.value.trim();
+    if (!contenido) return;
+
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    const { error } = await supabaseClient.from("chat_mensajes").insert({
+      user_id: user.id,
+      contenido,
+    });
+
+    if (error) {
+      mostrarToast(error.message, "error");
+      return;
+    }
+    input.value = "";
+  });
 }
 
 document.addEventListener("DOMContentLoaded", iniciarPantallaMapa);
