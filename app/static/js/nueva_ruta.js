@@ -255,7 +255,7 @@ async function iniciarRuta() {
   }
 
   mostrarToast("¡Ruta iniciada! Ya la tenés disponible en Mis rutas.", "success");
-  window.location.href = "/";
+  window.location.href = "/mapa";
 }
 
 async function iniciarPantallaNuevaRuta() {

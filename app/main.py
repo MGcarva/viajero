@@ -30,6 +30,11 @@ def contexto_base() -> dict:
 
 
 @app.get("/")
+def inicio(request: Request):
+    return templates.TemplateResponse(request, "inicio.html", contexto_base())
+
+
+@app.get("/mapa")
 def mapa(request: Request):
     return templates.TemplateResponse(request, "mapa.html", contexto_base())
 

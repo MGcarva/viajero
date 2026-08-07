@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% block title %}Viajero - Tu compañero de ruta{% endblock %}
+{% block head %}
+<style>
+  main { padding: 0; }
+
+  .hero-carrusel {
+    position: relative;
+    width: 100%;
+    height: 60vh;
+    min-height: 320px;
+    overflow: hidden;
+    background: #0f1418;
+  }
+  .carrusel-track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.6s ease;
+  }
+  .carrusel-track img {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(15,20,24,0.35) 0%, rgba(15,20,24,0.85) 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1.5rem;
+    pointer-events: none;
+  }
+  .hero-overlay h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    margin: 0 0 0.5rem 0;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.7);
+  }
+  .hero-overlay p {
+    font-size: 1.1rem;
+    color: #e8ecef;
+    margin: 0 0 1.5rem 0;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+  }
+  .hero-acciones {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    pointer-events: auto;
+  }
+  .hero-acciones a {
+    padding: 0.75rem 1.4rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .hero-btn-primario { background: #2b6cb0; color: white; }
+  .hero-btn-secundario { background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.4); }
+
+  .carrusel-flecha {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(15,20,24,0.6);
+    color: white;
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 10;
+  }
+  .carrusel-prev { left: 1rem; }
+  .carrusel-next { right: 1rem; }
+
+  .carrusel-dots {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 10;
+  }
+  .carrusel-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  .carrusel-dot.activo { background: white; }
+
+  .seccion {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 0.5rem 1.25rem;
+  }
+  .seccion h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+  .fila-tarjetas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+
+  .tarjeta-clima-ciudad {
+    background: #161d24;
+    border: 1px solid #26313a;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .tarjeta-clima-ciudad .ciudad-nombre { font-weight: 600; margin-bottom: 0.3rem; }
+  .tarjeta-clima-ciudad .ciudad-emoji { font-size: 1.6rem; }
+  .tarjeta-clima-ciudad .ciudad-temp { font-size: 0.9rem; color: #9fb0bd; margin-top: 0.2rem; }
+
+  .fila-fotos-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+  }
+  .fila-fotos-preview img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #26313a;
+  }
+  .ver-mas {
+    display: inline-block;
+    margin-top: 0.9rem;
+    color: #4db8ff;
+    font-size: 0.9rem;
+    text-decoration: none;
+  }
+
+  .tarjeta-ruta-comunidad {
+    background: #161d24;
+    border: 1px solid #26313a;
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+  }
+  .tarjeta-ruta-comunidad h3 { margin: 0 0 0.3rem 0; font-size: 1rem; }
+  .tarjeta-ruta-comunidad p { margin: 0; font-size: 0.8rem; color: #9fb0bd; }
+
+  .grid-esenciales {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.9rem;
+    margin-bottom: 1rem;
+  }
+  .item-esencial {
+    background: #161d24;
+    border: 1px solid #26313a;
+    border-radius: 10px;
+    padding: 0.9rem;
+    text-align: center;
+    font-size: 0.85rem;
+  }
+  .item-esencial .item-emoji { font-size: 1.6rem; display: block; margin-bottom: 0.4rem; }
+
+  .mensaje-vacio { color: #9fb0bd; font-size: 0.9rem; }
+
+  .footer-app {
+    margin-top: 3rem;
+    border-top: 1px solid #26313a;
+    padding: 2rem 1.25rem;
+    text-align: center;
+    color: #9fb0bd;
+    font-size: 0.85rem;
+  }
+  .footer-app nav {
+    display: flex;
+    gap: 1.25rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
+  .footer-app nav a { color: #4db8ff; text-decoration: none; }
+
+  @media (max-width: 640px) {
+    .hero-carrusel { height: 50vh; }
+    .carrusel-flecha { width: 36px; height: 36px; font-size: 1.2rem; }
+  }
+</style>
+{% endblock %}
+{% block content %}
+<section class="hero-carrusel" id="carrusel">
+  <div class="carrusel-track" id="carrusel-track">
+    <img src="/static/imagenes/images4.jpg?v={{ v }}" alt="Motociclistas viajando">
+    <img src="/static/imagenes/images1.jpg?v={{ v }}" alt="Ruta de montaña">
+    <img src="/static/imagenes/images3.jpg?v={{ v }}" alt="Moto equipada para viaje">
+    <img src="/static/imagenes/login.jpg?v={{ v }}" alt="Motociclista en la ruta">
+  </div>
+  <div class="hero-overlay">
+    <h1>🏍️ Viajero</h1>
+    <p>Tu compañero de ruta para viajes largos en moto.</p>
+    <div class="hero-acciones">
+      <a href="/mapa" class="hero-btn-primario">Ver el mapa</a>
+      <a href="/rutas/nueva" class="hero-btn-secundario">+ Nueva ruta</a>
+    </div>
+  </div>
+  <button class="carrusel-flecha carrusel-prev" id="carrusel-prev" type="button" aria-label="Anterior">‹</button>
+  <button class="carrusel-flecha carrusel-next" id="carrusel-next" type="button" aria-label="Siguiente">›</button>
+  <div class="carrusel-dots" id="carrusel-dots"></div>
+</section>
+
+<section class="seccion">
+  <h2>☀️ Clima en destinos frecuentes</h2>
+  <div id="clima-ciudades" class="fila-tarjetas"></div>
+</section>
+
+<section class="seccion">
+  <h2>📷 Últimas fotos de la comunidad</h2>
+  <div id="preview-fotos" class="fila-fotos-preview"></div>
+  <a href="/fotos" class="ver-mas">Ver toda la galería →</a>
+</section>
+
+<section class="seccion">
+  <h2>📍 Por visitar — rutas de la comunidad</h2>
+  <div id="rutas-comunidad" class="fila-tarjetas"></div>
+</section>
+
+<section class="seccion">
+  <h2>🎒 Elementos indispensables para tu viaje</h2>
+  <div class="grid-esenciales">
+    <div class="item-esencial"><span class="item-emoji">🪖</span>Casco homologado</div>
+    <div class="item-esencial"><span class="item-emoji">🧥</span>Chaqueta con protecciones</div>
+    <div class="item-esencial"><span class="item-emoji">🧤</span>Guantes</div>
+    <div class="item-esencial"><span class="item-emoji">🥾</span>Botas altas</div>
+    <div class="item-esencial"><span class="item-emoji">🧰</span>Kit de herramientas básico</div>
+    <div class="item-esencial"><span class="item-emoji">🩹</span>Botiquín de primeros auxilios</div>
+    <div class="item-esencial"><span class="item-emoji">📄</span>Documentos (licencia, padrón, seguro)</div>
+    <div class="item-esencial"><span class="item-emoji">🧵</span>Kit antipinchazos / repuesto</div>
+    <div class="item-esencial"><span class="item-emoji">🌧️</span>Impermeable</div>
+    <div class="item-esencial"><span class="item-emoji">🔋</span>Cargador / powerbank</div>
+    <div class="item-esencial"><span class="item-emoji">💧</span>Agua y snacks</div>
+    <div class="item-esencial"><span class="item-emoji">💵</span>Efectivo</div>
+  </div>
+</section>
+
+<footer class="footer-app">
+  <nav>
+    <a href="/mapa">Mapa</a>
+    <a href="/rutas/nueva">Nueva ruta</a>
+    <a href="/rutas">Mis rutas</a>
+    <a href="/fotos">Fotos</a>
+  </nav>
+  <div>🏍️ Viajero — hecho por y para motociclistas viajeros.</div>
+</footer>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/inicio.js?v={{ v }}"></script>
+{% endblock %}
