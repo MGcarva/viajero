@@ -29,6 +29,18 @@
   .tarjeta-pregunta p { margin: 0; font-size: 0.8rem; color: #9fb0bd; }
   #sin-preguntas { color: #9fb0bd; margin-top: 1rem; }
 
+  .normas-foro {
+    background: #161d24;
+    border: 1px solid #26313a;
+    border-left: 3px solid #2b6cb0;
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: #9fb0bd;
+  }
+  .normas-foro strong { color: #e8ecef; }
+
   dialog.modal-alerta { border: none; border-radius: 12px; padding: 0; background: #161d24; color: #e8ecef; width: min(90vw, 480px); }
   dialog.modal-alerta::backdrop { background: rgba(0,0,0,0.5); }
   .modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
@@ -48,6 +60,7 @@
   <h1>🔩 Foro de mecánica</h1>
   <button id="btn-abrir-pregunta" class="btn-accion" type="button">+ Nueva pregunta</button>
 </div>
+<p class="normas-foro"><strong>Normas de convivencia:</strong> tratemos este espacio con respeto. No se permiten el bullying, el acoso, los insultos ni las descalificaciones hacia otros usuarios. Las preguntas y respuestas fuera de tono se van a eliminar.</p>
 <p id="sin-preguntas" hidden>Todavía no hay preguntas. ¡Hacé la primera!</p>
 <div id="lista-preguntas" class="lista-preguntas"></div>
 

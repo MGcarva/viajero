@@ -35,19 +35,10 @@ async function pintarNav() {
   const sesion = await obtenerSesion();
   const navSesion = document.getElementById("nav-sesion");
   const navInvitado = document.getElementById("nav-invitado");
-  const nombre = document.getElementById("nav-username");
 
   if (sesion) {
     if (navSesion) navSesion.hidden = false;
     if (navInvitado) navInvitado.hidden = true;
-    if (nombre) {
-      const { data: perfil } = await supabaseClient
-        .from("profiles")
-        .select("username")
-        .eq("id", sesion.user.id)
-        .single();
-      nombre.textContent = perfil ? perfil.username : sesion.user.email;
-    }
   } else {
     if (navSesion) navSesion.hidden = true;
     if (navInvitado) navInvitado.hidden = false;
