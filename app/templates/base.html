@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Viajero Web{% endblock %}</title>
-  <link rel="stylesheet" href="/static/css/estilos.css">
+  <link rel="stylesheet" href="/static/css/estilos.css?v={{ v }}">
   {% block head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -27,10 +27,10 @@
     window.__SUPABASE_URL__ = "{{ supabase_url }}";
     window.__SUPABASE_ANON_KEY__ = "{{ supabase_anon_key }}";
   </script>
-  <script src="/static/js/supabase-client.js"></script>
-  <script src="/static/js/toast.js"></script>
-  <script src="/static/js/nav.js"></script>
-  <script src="/static/js/geo.js"></script>
+  <script src="/static/js/supabase-client.js?v={{ v }}"></script>
+  <script src="/static/js/toast.js?v={{ v }}"></script>
+  <script src="/static/js/nav.js?v={{ v }}"></script>
+  <script src="/static/js/geo.js?v={{ v }}"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

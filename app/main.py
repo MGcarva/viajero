@@ -1,3 +1,5 @@
+import time
+
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -7,6 +9,11 @@ from app.routers.auth import router as auth_router
 from app.routers.proxy import router as proxy_router
 
 app = FastAPI(title="Viajero Web")
+
+# Cambia en cada arranque del proceso (o sea, en cada deploy), así los
+# archivos estáticos se sirven con una URL nueva y el navegador no se queda
+# con una versión vieja en caché entre despliegues.
+STATIC_VERSION = str(int(time.time()))
 
 app.include_router(proxy_router)
 app.include_router(auth_router)
@@ -18,6 +25,7 @@ def contexto_base() -> dict:
     return {
         "supabase_url": SUPABASE_URL,
         "supabase_anon_key": SUPABASE_ANON_KEY,
+        "v": STATIC_VERSION,
     }
 
 
