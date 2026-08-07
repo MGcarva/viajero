@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Venta de motos - Viajero{% endblock %}
+{% block head %}
+<style>
+  .cabecera-motos {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .grilla-motos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .tarjeta-moto {
+    background: #161d24;
+    border: 1px solid #26313a;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .tarjeta-moto.vendida { opacity: 0.55; }
+  .tarjeta-moto img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+    background: #0f1418;
+  }
+  .tarjeta-moto-info { padding: 0.9rem 1.1rem; }
+  .tarjeta-moto-info h3 { margin: 0 0 0.2rem 0; font-size: 1.05rem; }
+  .tarjeta-moto-precio { color: #4db8ff; font-weight: 600; font-size: 1.05rem; margin-bottom: 0.4rem; }
+  .tarjeta-moto-detalle { font-size: 0.8rem; color: #9fb0bd; margin-bottom: 0.5rem; }
+  .badge-vendida {
+    display: inline-block; background: #7a2734; color: white; font-size: 0.7rem;
+    padding: 0.2rem 0.5rem; border-radius: 6px; margin-bottom: 0.4rem;
+  }
+  .tarjeta-moto-acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .tarjeta-moto-acciones a, .tarjeta-moto-acciones button {
+    padding: 0.45rem 0.8rem; border-radius: 8px; font-size: 0.8rem; border: none; cursor: pointer; text-decoration: none;
+  }
+  .btn-contactar { background: #235c3a; color: white; }
+  .btn-marcar-vendida { background: #26313a; color: #e8ecef; }
+  #sin-motos { color: #9fb0bd; margin-top: 1rem; }
+
+  dialog.modal-alerta { border: none; border-radius: 12px; padding: 0; background: #161d24; color: #e8ecef; width: min(90vw, 480px); max-height: 85vh; }
+  dialog.modal-alerta::backdrop { background: rgba(0,0,0,0.5); }
+  .modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; overflow-y: auto; }
+  .modal-body input, .modal-body textarea {
+    padding: 0.55rem 0.7rem; border-radius: 8px; border: 1px solid #2c3944;
+    background: #0f1418; color: #e8ecef; font-family: inherit;
+  }
+  .fila-campos { display: flex; gap: 0.6rem; }
+  .fila-campos > div { flex: 1; display: flex; flex-direction: column; gap: 0.3rem; }
+  .modal-acciones { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 0.5rem; }
+  .modal-acciones button { padding: 0.55rem 1rem; border: none; border-radius: 8px; cursor: pointer; }
+  #btn-confirmar-moto { background: #2b6cb0; color: white; }
+  #btn-cancelar-moto { background: #26313a; color: #e8ecef; }
+</style>
+{% endblock %}
+{% block content %}
+<p><a href="/">← Volver al inicio</a></p>
+<div class="cabecera-motos">
+  <h1>🏍️ Venta de motos</h1>
+  <button id="btn-abrir-moto" class="btn-accion" type="button">+ Publicar moto</button>
+</div>
+<p id="sin-motos" hidden>Todavía no hay motos publicadas.</p>
+<div id="grilla-motos" class="grilla-motos"></div>
+
+<dialog id="dialog-moto" class="modal-alerta">
+  <form id="form-moto" class="modal-body" method="dialog">
+    <div class="fila-campos">
+      <div>
+        <label for="marca-moto">Marca</label>
+        <input type="text" id="marca-moto" required>
+      </div>
+      <div>
+        <label for="modelo-moto">Modelo</label>
+        <input type="text" id="modelo-moto" required>
+      </div>
+    </div>
+    <div class="fila-campos">
+      <div>
+        <label for="anio-moto">Año</label>
+        <input type="number" id="anio-moto" min="1950" max="2100">
+      </div>
+      <div>
+        <label for="km-moto">Kilometraje</label>
+        <input type="number" id="km-moto" min="0">
+      </div>
+    </div>
+    <label for="precio-moto">Precio (CLP)</label>
+    <input type="number" id="precio-moto" min="0" required>
+
+    <label for="ubicacion-moto">Ubicación</label>
+    <input type="text" id="ubicacion-moto" placeholder="Ej: Santiago">
+
+    <label for="contacto-moto">Contacto (WhatsApp, teléfono o email)</label>
+    <input type="text" id="contacto-moto" required>
+
+    <label for="descripcion-moto">Descripción</label>
+    <textarea id="descripcion-moto" rows="3"></textarea>
+
+    <label for="foto-moto">Foto (opcional)</label>
+    <input type="file" id="foto-moto" accept="image/*">
+
+    <div class="modal-acciones">
+      <button type="button" id="btn-cancelar-moto">Cancelar</button>
+      <button type="submit" id="btn-confirmar-moto">Publicar</button>
+    </div>
+  </form>
+</dialog>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/motos.js?v={{ v }}"></script>
+{% endblock %}

@@ -89,3 +89,8 @@ def foro_pregunta(pregunta_id: str, request: Request):
     ctx = contexto_base()
     ctx["pregunta_id"] = pregunta_id
     return templates.TemplateResponse(request, "foro_pregunta.html", ctx)
+
+
+@app.get("/motos")
+def motos(request: Request):
+    return templates.TemplateResponse(request, "motos.html", contexto_base())
