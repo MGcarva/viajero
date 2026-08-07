@@ -94,3 +94,8 @@ def foro_pregunta(pregunta_id: str, request: Request):
 @app.get("/motos")
 def motos(request: Request):
     return templates.TemplateResponse(request, "motos.html", contexto_base())
+
+
+@app.get("/anunciate")
+def anunciate(request: Request):
+    return templates.TemplateResponse(request, "anunciate.html", contexto_base())

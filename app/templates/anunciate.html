@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Anúnciate aquí - Viajero{% endblock %}
+{% block head %}
+<style>
+  .anuncio-hero {
+    background: #161d24;
+    border: 1px solid #26313a;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+  }
+  .anuncio-hero ul { margin: 0.75rem 0 0 1.2rem; padding: 0; color: #9fb0bd; }
+  .anuncio-hero li { margin-bottom: 0.4rem; }
+
+  .form-anuncio {
+    max-width: 480px;
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .form-anuncio input, .form-anuncio textarea {
+    padding: 0.6rem 0.7rem;
+    border-radius: 8px;
+    border: 1px solid #2c3944;
+    background: #0f1418;
+    color: #e8ecef;
+    font-family: inherit;
+  }
+  .form-anuncio button {
+    margin-top: 0.5rem;
+    padding: 0.7rem;
+    border: none;
+    border-radius: 8px;
+    background: #2b6cb0;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .form-anuncio button:disabled { opacity: 0.6; cursor: default; }
+</style>
+{% endblock %}
+{% block content %}
+<p><a href="/">← Volver al inicio</a></p>
+<h1>📢 Anúnciate aquí</h1>
+
+<div class="anuncio-hero">
+  <p>Viajero conecta a motociclistas viajeros de toda la comunidad. Si tenés una marca o negocio relacionado (repuestos, indumentaria, talleres, seguros, alojamiento, etc.), este es tu espacio.</p>
+  <ul>
+    <li>Banner destacado en la pantalla de Inicio</li>
+    <li>Visibilidad directa ante una comunidad motera activa</li>
+    <li>Coordinación y precios directo con nosotros, sin intermediarios</li>
+  </ul>
+  <p>Dejanos tus datos y te contactamos para coordinar.</p>
+</div>
+
+<form id="form-anuncio" class="form-anuncio">
+  <label for="empresa-anuncio">Empresa / marca</label>
+  <input type="text" id="empresa-anuncio" required>
+
+  <label for="contacto-anuncio">Email o teléfono de contacto</label>
+  <input type="text" id="contacto-anuncio" required>
+
+  <label for="mensaje-anuncio">Mensaje (opcional)</label>
+  <textarea id="mensaje-anuncio" rows="4"></textarea>
+
+  <button type="submit" id="btn-enviar-anuncio">Enviar</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/anunciate.js?v={{ v }}"></script>
+{% endblock %}
