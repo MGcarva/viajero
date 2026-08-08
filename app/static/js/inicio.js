@@ -36,7 +36,7 @@ function iniciarCarrusel() {
 
   function reiniciarAutoavance() {
     if (temporizador) clearInterval(temporizador);
-    temporizador = setInterval(() => ir(indice + 1), 4000);
+    temporizador = setInterval(() => ir(indice + 1), 3000);
   }
 
   document.getElementById("carrusel-prev").addEventListener("click", () => {
