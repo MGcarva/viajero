@@ -5,3 +5,6 @@ venv/
 .venv/
 *.egg-info/
 .DS_Store
+
+# Contiene logos de marcas de terceros, no se sube al repo publico.
+app/static/imagenes/footer.png
